@@ -96,7 +96,7 @@ export async function getCuratedItems(
       }
     }),
   );
-  return results.filter((r): r is TMDBMovie => r !== null);
+  return results.filter((r): r is TMDBMovie => r !== null) as TMDBMovie[];
 }
 
 /**
