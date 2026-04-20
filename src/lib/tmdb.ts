@@ -90,13 +90,13 @@ export async function getCuratedItems(
     items.map(async ({ id, type }) => {
       try {
         const data = await tmdbFetch<TMDBMovie>(`/${type}/${id}`);
-        return { ...data, media_type: type };
+        return { ...data, media_type: type as string } as TMDBMovie;
       } catch {
         return null;
       }
     }),
   );
-  return results.filter((r): r is TMDBMovie => r !== null) as TMDBMovie[];
+  return results.filter((r): r is TMDBMovie => r !== null);
 }
 
 /**
