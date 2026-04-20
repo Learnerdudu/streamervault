@@ -14,7 +14,10 @@ export function MovieCard({ item, mediaType }: MovieCardProps) {
   const year = (item.release_date || item.first_air_date || "").slice(0, 4);
 
   return (
-    <Link to={`/watch/${type}/${item.id}`} className="movie-card group">
+    <Link
+      to={`/watch/${type}/${item.id}`}
+      className="movie-card group relative block overflow-hidden rounded-md transition-transform duration-300 ease-out hover:scale-105 hover:z-10"
+    >
       {poster ? (
         <img src={poster} alt={title} className="aspect-[2/3] w-full object-cover" loading="lazy" />
       ) : (
@@ -22,19 +25,27 @@ export function MovieCard({ item, mediaType }: MovieCardProps) {
           No Image
         </div>
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        <div className="rounded-full bg-primary/90 p-3 shadow-lg">
-          <Play className="h-5 w-5 fill-current text-primary-foreground" />
+
+      {/* Hover overlay */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-t from-background/95 via-background/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <div className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 shadow-xl">
+          <Play className="h-4 w-4 fill-current text-primary-foreground" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary-foreground">
+            Quick Play
+          </span>
         </div>
       </div>
-      <div className="absolute inset-x-0 bottom-0 translate-y-2 p-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+
+      {/* Title strip */}
+      <div className="absolute inset-x-0 bottom-0 translate-y-1 p-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
         <p className="truncate text-xs font-semibold text-foreground">{title}</p>
         <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Star className="h-3 w-3 fill-primary text-primary" />
-            {item.vote_average.toFixed(1)}
-          </span>
+          {item.vote_average > 0 && (
+            <span className="flex items-center gap-1">
+              <Star className="h-3 w-3 fill-primary text-primary" />
+              {item.vote_average.toFixed(1)}
+            </span>
+          )}
           {year && <span>· {year}</span>}
         </div>
       </div>

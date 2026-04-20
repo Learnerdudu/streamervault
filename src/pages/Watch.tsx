@@ -10,6 +10,8 @@ import {
   getPlayerUrl,
   type TMDBTVDetails,
 } from "@/lib/tmdb";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const SERVER_LABELS = ["Vaplayer", "StreamIMDB", "VidLink", "Legacy (vidsrc)"];
 
@@ -17,8 +19,10 @@ const Watch = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
   const isTV = type === "tv";
   const tmdbId = Number(id);
+  const { user } = useAuth();
 
   const [title, setTitle] = useState("");
+  const [posterPath, setPosterPath] = useState<string | null>(null);
   const [tvDetails, setTvDetails] = useState<TMDBTVDetails | null>(null);
   const [season, setSeason] = useState(1);
   const [episode, setEpisode] = useState(1);
@@ -34,14 +38,39 @@ const Watch = () => {
         .then((data) => {
           setTitle(data.name);
           setTvDetails(data);
+          setPosterPath((data as unknown as { poster_path: string | null }).poster_path ?? null);
         })
         .finally(() => setLoading(false));
     } else {
       getMovieDetails(tmdbId)
-        .then((data) => setTitle(data.title || ""))
+        .then((data) => {
+          setTitle(data.title || "");
+          setPosterPath((data as unknown as { poster_path: string | null }).poster_path ?? null);
+        })
         .finally(() => setLoading(false));
     }
   }, [tmdbId, isTV]);
+
+  // Record to watch_history when logged in & metadata loaded
+  useEffect(() => {
+    if (!user || !tmdbId || !title) return;
+    supabase
+      .from("watch_history")
+      .upsert(
+        {
+          user_id: user.id,
+          tmdb_id: tmdbId,
+          media_type: isTV ? "tv" : "movie",
+          title,
+          poster_path: posterPath,
+          season: isTV ? season : null,
+          episode: isTV ? episode : null,
+          watched_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,tmdb_id,media_type" },
+      )
+      .then(() => {});
+  }, [user, tmdbId, isTV, title, posterPath, season, episode]);
 
   const playerUrl = useMemo(
     () =>
