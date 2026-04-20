@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { HeroBanner } from "@/components/HeroBanner";
 import { MovieCarousel } from "@/components/MovieCarousel";
+import { AdBanner } from "@/components/AdBanner";
 import {
   getTrending,
   getPopularMovies,
@@ -66,7 +67,10 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       {heroItem && <HeroBanner item={heroItem} />}
-      <div className="relative z-10 mx-auto -mt-32 max-w-7xl px-4 pb-16 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <AdBanner />
+      </div>
+      <div className="relative z-10 mx-auto mt-12 max-w-7xl px-4 pb-16 sm:px-6">
         <MovieCarousel title="🔥 Trending Now" items={trending} />
         <MovieCarousel title="Popular Movies" items={popularMovies} mediaType="movie" />
         <MovieCarousel title="Top Rated Movies" items={topMovies} mediaType="movie" />
