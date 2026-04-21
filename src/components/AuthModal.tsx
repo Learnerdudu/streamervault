@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function AuthModal({ open, onOpenChange }: Props) {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
@@ -34,7 +36,7 @@ export function AuthModal({ open, onOpenChange }: Props) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) return toast({ title: "Sign-in failed", description: error.message, variant: "destructive" });
-    toast({ title: "Welcome back" });
+    toast({ title: t("auth.welcome") });
     onOpenChange(false);
   }
 
@@ -61,10 +63,7 @@ export function AuthModal({ open, onOpenChange }: Props) {
     });
     setBusy(false);
     if (error) return toast({ title: "Sign-up failed", description: error.message, variant: "destructive" });
-    toast({
-      title: "Check your inbox",
-      description: "Click the verification link in your email to finish signing up.",
-    });
+    toast({ title: t("auth.checkInbox"), description: t("auth.verifyDesc") });
     onOpenChange(false);
   }
 
@@ -75,27 +74,27 @@ export function AuthModal({ open, onOpenChange }: Props) {
           <DialogTitle className="font-display text-3xl tracking-wide">
             STREAM<span className="text-primary">VAULT</span>
           </DialogTitle>
-          <DialogDescription>Access your watchlist & continue watching.</DialogDescription>
+          <DialogDescription>{t("auth.title")}</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="signin">{t("auth.signIn")}</TabsTrigger>
+            <TabsTrigger value="signup">{t("auth.signUp")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
             <form onSubmit={handleSignIn} className="space-y-3 pt-2">
               <div className="space-y-1.5">
-                <Label htmlFor="si-email">Email</Label>
+                <Label htmlFor="si-email">{t("auth.email")}</Label>
                 <Input id="si-email" name="email" type="email" autoComplete="email" required />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="si-password">Password</Label>
+                <Label htmlFor="si-password">{t("auth.password")}</Label>
                 <Input id="si-password" name="password" type="password" autoComplete="current-password" required />
               </div>
               <Button type="submit" disabled={busy} className="w-full">
-                {busy ? "Signing in..." : "Sign In"}
+                {busy ? t("auth.signingIn") : t("auth.signIn")}
               </Button>
             </form>
           </TabsContent>
@@ -103,23 +102,21 @@ export function AuthModal({ open, onOpenChange }: Props) {
           <TabsContent value="signup">
             <form onSubmit={handleSignUp} className="space-y-3 pt-2">
               <div className="space-y-1.5">
-                <Label htmlFor="su-name">Display name</Label>
+                <Label htmlFor="su-name">{t("auth.displayName")}</Label>
                 <Input id="su-name" name="displayName" type="text" autoComplete="nickname" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="su-email">Email</Label>
+                <Label htmlFor="su-email">{t("auth.email")}</Label>
                 <Input id="su-email" name="email" type="email" autoComplete="email" required />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="su-password">Password (8+ chars)</Label>
+                <Label htmlFor="su-password">{t("auth.passwordHint")}</Label>
                 <Input id="su-password" name="password" type="password" autoComplete="new-password" required />
               </div>
               <Button type="submit" disabled={busy} className="w-full">
-                {busy ? "Creating account..." : "Create Account"}
+                {busy ? t("auth.creating") : t("auth.createAccount")}
               </Button>
-              <p className="text-center text-xs text-muted-foreground">
-                We'll email you a verification link.
-              </p>
+              <p className="text-center text-xs text-muted-foreground">{t("auth.verifyHint")}</p>
             </form>
           </TabsContent>
         </Tabs>

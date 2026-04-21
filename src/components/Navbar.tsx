@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<TMDBMovie[]>([]);
   const [showSearch, setShowSearch] = useState(false);
@@ -89,7 +90,7 @@ export function Navbar() {
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search movies & shows..."
+                  placeholder={t("nav.search")}
                   className="w-40 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none sm:w-64"
                   value={query}
                   onFocus={() => setShowSearch(true)}
@@ -123,6 +124,8 @@ export function Navbar() {
               )}
             </div>
 
+            <LanguageSelector />
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -136,16 +139,16 @@ export function Navbar() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem disabled>
-                    <UserIcon className="mr-2 h-4 w-4" /> Profile
+                    <UserIcon className="mr-2 h-4 w-4" /> {t("nav.profile")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => signOut()}>
-                    <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                    <LogOut className="mr-2 h-4 w-4" /> {t("nav.signOut")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Button size="sm" onClick={() => setAuthOpen(true)} className="font-semibold">
-                Sign In
+                {t("nav.signIn")}
               </Button>
             )}
           </div>
