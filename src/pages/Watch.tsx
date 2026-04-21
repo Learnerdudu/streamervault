@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { EpisodeSelector } from "@/components/EpisodeSelector";
@@ -16,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 const SERVER_LABELS = ["Vaplayer", "StreamIMDB", "VidLink", "Legacy (vidsrc)"];
 
 const Watch = () => {
+  const { t } = useTranslation();
   const { type, id } = useParams<{ type: string; id: string }>();
   const isTV = type === "tv";
   const tmdbId = Number(id);
@@ -96,7 +98,7 @@ const Watch = () => {
           to="/"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Browse
+          <ArrowLeft className="h-4 w-4" /> {t("watch.back")}
         </Link>
 
         <h1 className="mb-5 font-display text-4xl tracking-wide text-foreground sm:text-5xl">
@@ -142,13 +144,13 @@ const Watch = () => {
             onClick={() => setShowHelper((v) => !v)}
             className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
           >
-            Video not loading? Try another server
+            {t("watch.tryServer")}
           </button>
         </div>
 
         {showHelper && (
           <p className="mt-2 text-right text-xs text-muted-foreground">
-            Pick a different server below — different sources may have different sources for this title.
+            {t("watch.serverHint")}
           </p>
         )}
 
@@ -163,7 +165,7 @@ const Watch = () => {
                   : "bg-secondary text-secondary-foreground hover:bg-[hsl(var(--surface-hover))]"
               }`}
             >
-              Server {s} — {SERVER_LABELS[i]}
+              {t("watch.server")} {s} — {SERVER_LABELS[i]}
             </button>
           ))}
         </div>

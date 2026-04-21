@@ -93,6 +93,15 @@
   .movie-card:hover { box-shadow: var(--shadow-glow); }
 }
 
+/* RTL refinements — keep carousels LTR-flowing for visual consistency,
+   but flip layout direction globally so navbar/forms/text align correctly. */
+[dir="rtl"] .carousel-row {
+  direction: ltr;
+}
+[dir="rtl"] {
+  letter-spacing: 0;
+}
+
 /* Lovable badge hide — best-effort CSS workaround (not guaranteed). */
 .lovable-badge,
 #lovable-edit-button,

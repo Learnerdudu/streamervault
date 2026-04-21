@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { MovieCarousel } from "@/components/MovieCarousel";
@@ -13,6 +14,7 @@ interface Row {
 
 export function ContinueWatching() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [items, setItems] = useState<TMDBMovie[]>([]);
 
   useEffect(() => {
@@ -44,5 +46,10 @@ export function ContinueWatching() {
   }, [user]);
 
   if (!user || items.length === 0) return null;
-  return <MovieCarousel title="▶ Continue Watching" items={items} />;
+  // Wrapper enforces 80px+ vertical space below the AdBanner / Hero.
+  return (
+    <div className="mt-20">
+      <MovieCarousel title={t("rows.continueWatching")} items={items} />
+    </div>
+  );
 }

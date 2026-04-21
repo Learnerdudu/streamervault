@@ -1,0 +1,79 @@
+{
+  "nav": {
+    "search": "Buscar películas y series...",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "profile": "Perfil"
+  },
+  "hero": {
+    "featuredFilm": "Película destacada",
+    "featuredSeries": "Serie destacada",
+    "playNow": "Reproducir",
+    "moreInfo": "Más información"
+  },
+  "rows": {
+    "pickedForYou": "🎯 Elegido para ti",
+    "continueWatching": "▶ Continuar viendo",
+    "trending": "🔥 Tendencias",
+    "adrenaline": "💥 Pura adrenalina",
+    "lateNight": "🌙 Escalofríos nocturnos",
+    "ethereal": "✨ Vibras etéreas",
+    "vault": "🎞 Clásicos del Vault",
+    "cult": "🃏 Favoritos de culto"
+  },
+  "card": {
+    "quickPlay": "Reproducción rápida",
+    "quickPeek": "Vista rápida",
+    "watchTrailer": "Ver tráiler"
+  },
+  "modal": {
+    "watchNow": "Ver ahora",
+    "trending": "Tendencia esta semana",
+    "rating": "Puntuación",
+    "noTrailer": "Tráiler no disponible"
+  },
+  "auth": {
+    "title": "Accede a tu lista y continúa viendo.",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "email": "Correo",
+    "password": "Contraseña",
+    "passwordHint": "Contraseña (8+ caracteres)",
+    "displayName": "Nombre",
+    "signingIn": "Iniciando...",
+    "creating": "Creando cuenta...",
+    "createAccount": "Crear cuenta",
+    "verifyHint": "Te enviaremos un enlace de verificación.",
+    "welcome": "Bienvenido de nuevo",
+    "checkInbox": "Revisa tu correo",
+    "verifyDesc": "Haz clic en el enlace de verificación para completar el registro."
+  },
+  "watch": {
+    "back": "Volver al inicio",
+    "tryServer": "¿No carga el vídeo? Prueba otro servidor",
+    "serverHint": "Elige un servidor diferente abajo.",
+    "server": "Servidor"
+  },
+  "footer": {
+    "disclaimer": "StreamVault no aloja ni distribuye contenido protegido por derechos de autor. Todo el contenido es proporcionado por terceros no afiliados.",
+    "copyright": "Copyright y DMCA",
+    "copyrightText": "Todas las marcas y logotipos son propiedad de sus respectivos dueños. Si crees que tu obra ha sido enlazada sin autorización, contáctanos.",
+    "contact": "Contacto",
+    "contactText": "Para solicitudes DMCA, consultas comerciales o comentarios:",
+    "getInTouch": "Contáctanos →",
+    "rights": "© {{year}} StreamVault. Todos los derechos reservados."
+  },
+  "contact": {
+    "title": "Contáctanos",
+    "intro": "¿Tienes una pregunta, solicitud DMCA o comentario? Completa el formulario.",
+    "subject": "Asunto",
+    "subjectPlaceholder": "p. ej. Solicitud DMCA",
+    "message": "Tu mensaje",
+    "messagePlaceholder": "Describe tu consulta en detalle...",
+    "send": "Enviar",
+    "sending": "Enviando...",
+    "sent": "✓ Mensaje enviado correctamente.",
+    "error": "Algo salió mal. Intenta de nuevo."
+  },
+  "lang": { "label": "Idioma" }
+}

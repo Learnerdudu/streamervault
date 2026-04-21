@@ -1,0 +1,79 @@
+{
+  "nav": {
+    "search": "ابحث عن أفلام ومسلسلات...",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "profile": "الملف الشخصي"
+  },
+  "hero": {
+    "featuredFilm": "فيلم مميز",
+    "featuredSeries": "مسلسل مميز",
+    "playNow": "تشغيل الآن",
+    "moreInfo": "المزيد من المعلومات"
+  },
+  "rows": {
+    "pickedForYou": "🎯 مختار لك",
+    "continueWatching": "▶ متابعة المشاهدة",
+    "trending": "🔥 الأكثر رواجاً",
+    "adrenaline": "💥 إثارة قصوى",
+    "lateNight": "🌙 رعب الليل",
+    "ethereal": "✨ أجواء أثيرية",
+    "vault": "🎞 كلاسيكيات الخزنة",
+    "cult": "🃏 المفضلات الكلاسيكية"
+  },
+  "card": {
+    "quickPlay": "تشغيل سريع",
+    "quickPeek": "نظرة سريعة",
+    "watchTrailer": "شاهد الإعلان"
+  },
+  "modal": {
+    "watchNow": "شاهد الآن",
+    "trending": "رائج هذا الأسبوع",
+    "rating": "التقييم",
+    "noTrailer": "لا يوجد إعلان متاح"
+  },
+  "auth": {
+    "title": "ادخل لقائمة المشاهدة الخاصة بك.",
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "passwordHint": "كلمة المرور (8+ أحرف)",
+    "displayName": "الاسم",
+    "signingIn": "جاري الدخول...",
+    "creating": "جاري الإنشاء...",
+    "createAccount": "إنشاء حساب",
+    "verifyHint": "سنرسل رابط تأكيد عبر البريد.",
+    "welcome": "أهلاً بعودتك",
+    "checkInbox": "افحص بريدك",
+    "verifyDesc": "انقر رابط التأكيد لإكمال التسجيل."
+  },
+  "watch": {
+    "back": "رجوع",
+    "tryServer": "الفيديو لا يعمل؟ جرّب خادمًا آخر",
+    "serverHint": "اختر خادمًا مختلفًا أدناه.",
+    "server": "الخادم"
+  },
+  "footer": {
+    "disclaimer": "لا تستضيف StreamVault أي محتوى محمي بحقوق الطبع. جميع الوسائط مقدمة من جهات خارجية.",
+    "copyright": "حقوق النشر و DMCA",
+    "copyrightText": "جميع العلامات والشعارات ملك لأصحابها.",
+    "contact": "تواصل",
+    "contactText": "لطلبات DMCA أو الاستفسارات:",
+    "getInTouch": "تواصل معنا ←",
+    "rights": "© {{year}} StreamVault. جميع الحقوق محفوظة."
+  },
+  "contact": {
+    "title": "تواصل معنا",
+    "intro": "هل لديك سؤال أو طلب DMCA؟ املأ النموذج.",
+    "subject": "الموضوع",
+    "subjectPlaceholder": "مثال: طلب DMCA",
+    "message": "رسالتك",
+    "messagePlaceholder": "اشرح استفسارك بالتفصيل...",
+    "send": "إرسال",
+    "sending": "جاري الإرسال...",
+    "sent": "✓ تم الإرسال بنجاح.",
+    "error": "حدث خطأ ما."
+  },
+  "lang": { "label": "اللغة" }
+}

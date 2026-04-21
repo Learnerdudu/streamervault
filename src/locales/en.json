@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "search": "Search movies & shows...",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "profile": "Profile"
+  },
+  "hero": {
+    "featuredFilm": "Featured Film",
+    "featuredSeries": "Featured Series",
+    "playNow": "Play Now",
+    "moreInfo": "More Info"
+  },
+  "rows": {
+    "pickedForYou": "🎯 Picked For You",
+    "continueWatching": "▶ Continue Watching",
+    "trending": "🔥 Trending Now",
+    "adrenaline": "💥 Adrenaline Hits",
+    "lateNight": "🌙 Late Night Chills",
+    "ethereal": "✨ Ethereal Vibes",
+    "vault": "🎞 The Vault Classics",
+    "cult": "🃏 Cult Favorites"
+  },
+  "card": {
+    "quickPlay": "Quick Play",
+    "quickPeek": "Quick Peek",
+    "watchTrailer": "Watch Trailer"
+  },
+  "modal": {
+    "watchNow": "Watch Now",
+    "trending": "Trending This Week",
+    "rating": "Rating",
+    "noTrailer": "No trailer available"
+  },
+  "auth": {
+    "title": "Access your watchlist & continue watching.",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "Password (8+ chars)",
+    "displayName": "Display name",
+    "signingIn": "Signing in...",
+    "creating": "Creating account...",
+    "createAccount": "Create Account",
+    "verifyHint": "We'll email you a verification link.",
+    "welcome": "Welcome back",
+    "checkInbox": "Check your inbox",
+    "verifyDesc": "Click the verification link in your email to finish signing up."
+  },
+  "watch": {
+    "back": "Back to Browse",
+    "tryServer": "Video not loading? Try another server",
+    "serverHint": "Pick a different server below — different sources may have different sources for this title.",
+    "server": "Server"
+  },
+  "footer": {
+    "disclaimer": "StreamVault does not host, store, or distribute any copyrighted content. All media is provided by unaffiliated third-party services. We are not responsible for the content, accuracy, or legality of material streamed through external players.",
+    "copyright": "Copyright & DMCA",
+    "copyrightText": "All trademarks, logos, and images are property of their respective owners. If you believe your copyrighted work has been linked without authorization, please contact us and we will remove it promptly.",
+    "contact": "Contact",
+    "contactText": "For DMCA takedown requests, business inquiries, or general feedback:",
+    "getInTouch": "Get in touch →",
+    "rights": "© {{year}} StreamVault. All rights reserved. For educational purposes only."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "intro": "Have a question, DMCA request, or feedback? Fill out the form below and we'll get back to you.",
+    "subject": "Subject",
+    "subjectPlaceholder": "e.g. DMCA Takedown Request",
+    "message": "Your Message",
+    "messagePlaceholder": "Describe your inquiry in detail...",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "sent": "✓ Message sent successfully! We'll get back to you soon.",
+    "error": "Something went wrong. Please try again."
+  },
+  "lang": {
+    "label": "Language"
+  }
+}

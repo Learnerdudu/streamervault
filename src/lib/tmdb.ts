@@ -16,6 +16,7 @@ export interface TMDBMovie {
   release_date?: string;
   first_air_date?: string;
   media_type?: string;
+  genre_ids?: number[];
 }
 
 export interface TMDBSeason {
@@ -30,6 +31,14 @@ export interface TMDBTVDetails {
   seasons: TMDBSeason[];
   external_ids?: { imdb_id: string };
   number_of_seasons: number;
+}
+
+export interface TMDBVideo {
+  key: string;
+  site: string;
+  type: string;
+  official: boolean;
+  name: string;
 }
 
 async function tmdbFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
@@ -67,7 +76,10 @@ export async function getTopRatedTV() {
 }
 
 export async function getMovieDetails(id: number) {
-  return tmdbFetch<TMDBMovie & { imdb_id: string }>(`/movie/${id}`, { append_to_response: "external_ids" });
+  return tmdbFetch<TMDBMovie & { imdb_id: string; runtime?: number; genres?: { id: number; name: string }[] }>(
+    `/movie/${id}`,
+    { append_to_response: "external_ids" },
+  );
 }
 
 export async function getTVDetails(id: number) {
@@ -79,10 +91,6 @@ export async function searchMulti(query: string) {
   return data.results.filter((r) => r.media_type === "movie" || r.media_type === "tv");
 }
 
-/**
- * Get a curated list of TMDB items by ID. Used for the editorial Trending row
- * (The Boys S5, Super Mario Galaxy Movie, Stranger Things: Tales from '85).
- */
 export async function getCuratedItems(
   items: Array<{ id: number; type: "movie" | "tv" }>,
 ): Promise<TMDBMovie[]> {
@@ -99,10 +107,28 @@ export async function getCuratedItems(
   return results.filter((r): r is TMDBMovie => r !== null);
 }
 
-/**
- * Build embed URL. ALL servers receive the numeric TMDB ID (no IMDB).
- * Server 4 = Legacy vidsrc-embed.ru, kept as the primary fallback.
- */
+/** Discover by TMDB genre id — used for mood collections + personalization. */
+export async function discoverByGenre(type: "movie" | "tv", genreId: number) {
+  const data = await tmdbFetch<{ results: TMDBMovie[] }>(`/discover/${type}`, {
+    with_genres: String(genreId),
+    sort_by: "popularity.desc",
+  });
+  return data.results.map((r) => ({ ...r, media_type: type as string }));
+}
+
+/** Fetch first official YouTube trailer/teaser key. Returns null if none. */
+export async function getTrailerKey(id: number, type: "movie" | "tv"): Promise<string | null> {
+  try {
+    const data = await tmdbFetch<{ results: TMDBVideo[] }>(`/${type}/${id}/videos`);
+    const videos = data.results.filter((v) => v.site === "YouTube");
+    const official = videos.find((v) => v.official && v.type === "Trailer");
+    const trailer = official || videos.find((v) => v.type === "Trailer") || videos.find((v) => v.type === "Teaser") || videos[0];
+    return trailer?.key ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function getPlayerUrl(
   tmdbId: number,
   season?: number,
