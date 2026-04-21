@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Film, LogOut, User as UserIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { searchMulti, getImageUrl, type TMDBMovie } from "@/lib/tmdb";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthModal } from "@/components/AuthModal";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

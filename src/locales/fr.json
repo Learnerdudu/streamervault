@@ -1,0 +1,79 @@
+{
+  "nav": {
+    "search": "Rechercher films et séries...",
+    "signIn": "Connexion",
+    "signOut": "Déconnexion",
+    "profile": "Profil"
+  },
+  "hero": {
+    "featuredFilm": "Film à la une",
+    "featuredSeries": "Série à la une",
+    "playNow": "Lecture",
+    "moreInfo": "Plus d'infos"
+  },
+  "rows": {
+    "pickedForYou": "🎯 Choisi pour vous",
+    "continueWatching": "▶ Reprendre",
+    "trending": "🔥 Tendances",
+    "adrenaline": "💥 Pleins d'adrénaline",
+    "lateNight": "🌙 Frissons nocturnes",
+    "ethereal": "✨ Vibes éthérées",
+    "vault": "🎞 Classiques du Vault",
+    "cult": "🃏 Favoris cultes"
+  },
+  "card": {
+    "quickPlay": "Lecture rapide",
+    "quickPeek": "Aperçu",
+    "watchTrailer": "Voir la bande-annonce"
+  },
+  "modal": {
+    "watchNow": "Regarder",
+    "trending": "Tendance cette semaine",
+    "rating": "Note",
+    "noTrailer": "Aucune bande-annonce"
+  },
+  "auth": {
+    "title": "Accédez à votre liste et reprenez la lecture.",
+    "signIn": "Connexion",
+    "signUp": "Inscription",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "passwordHint": "Mot de passe (8+ caractères)",
+    "displayName": "Nom",
+    "signingIn": "Connexion...",
+    "creating": "Création...",
+    "createAccount": "Créer un compte",
+    "verifyHint": "Nous vous enverrons un lien de vérification.",
+    "welcome": "Bon retour",
+    "checkInbox": "Vérifiez votre boîte mail",
+    "verifyDesc": "Cliquez sur le lien de vérification pour terminer."
+  },
+  "watch": {
+    "back": "Retour",
+    "tryServer": "Vidéo bloquée ? Essayez un autre serveur",
+    "serverHint": "Choisissez un autre serveur ci-dessous.",
+    "server": "Serveur"
+  },
+  "footer": {
+    "disclaimer": "StreamVault n'héberge ni ne distribue de contenu protégé. Tout le média est fourni par des services tiers non affiliés.",
+    "copyright": "Copyright & DMCA",
+    "copyrightText": "Toutes les marques et logos sont la propriété de leurs détenteurs respectifs.",
+    "contact": "Contact",
+    "contactText": "Pour les demandes DMCA, demandes commerciales ou retours :",
+    "getInTouch": "Nous contacter →",
+    "rights": "© {{year}} StreamVault. Tous droits réservés."
+  },
+  "contact": {
+    "title": "Nous contacter",
+    "intro": "Une question, demande DMCA ou retour ? Remplissez le formulaire.",
+    "subject": "Sujet",
+    "subjectPlaceholder": "p. ex. demande DMCA",
+    "message": "Votre message",
+    "messagePlaceholder": "Décrivez votre demande en détail...",
+    "send": "Envoyer",
+    "sending": "Envoi...",
+    "sent": "✓ Message envoyé.",
+    "error": "Une erreur est survenue."
+  },
+  "lang": { "label": "Langue" }
+}
