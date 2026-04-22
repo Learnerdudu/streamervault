@@ -24,7 +24,8 @@
   "card": {
     "quickPlay": "Reproducción rápida",
     "quickPeek": "Vista rápida",
-    "watchTrailer": "Ver tráiler"
+    "watchTrailer": "Ver tráiler",
+    "resume": "Reanudar"
   },
   "modal": {
     "watchNow": "Ver ahora",
@@ -52,7 +53,8 @@
     "back": "Volver al inicio",
     "tryServer": "¿No carga el vídeo? Prueba otro servidor",
     "serverHint": "Elige un servidor diferente abajo.",
-    "server": "Servidor"
+    "server": "Servidor",
+    "resuming": "Reanudando desde"
   },
   "footer": {
     "disclaimer": "StreamVault no aloja ni distribuye contenido protegido por derechos de autor. Todo el contenido es proporcionado por terceros no afiliados.",
@@ -75,5 +77,14 @@
     "sent": "✓ Mensaje enviado correctamente.",
     "error": "Algo salió mal. Intenta de nuevo."
   },
-  "lang": { "label": "Idioma" }
+  "lang": {
+    "label": "Idioma"
+  },
+  "xray": {
+    "toggle": "Rayos X",
+    "cast": "Reparto",
+    "music": "Música",
+    "loading": "Cargando créditos…",
+    "empty": "Sin datos."
+  }
 }
