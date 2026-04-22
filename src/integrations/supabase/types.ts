@@ -44,6 +44,7 @@ export type Database = {
           id: string
           media_type: string
           poster_path: string | null
+          progress_seconds: number
           season: number | null
           title: string
           tmdb_id: number
@@ -55,6 +56,7 @@ export type Database = {
           id?: string
           media_type: string
           poster_path?: string | null
+          progress_seconds?: number
           season?: number | null
           title: string
           tmdb_id: number
@@ -66,6 +68,7 @@ export type Database = {
           id?: string
           media_type?: string
           poster_path?: string | null
+          progress_seconds?: number
           season?: number | null
           title?: string
           tmdb_id?: number
