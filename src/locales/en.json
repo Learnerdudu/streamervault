@@ -24,7 +24,8 @@
   "card": {
     "quickPlay": "Quick Play",
     "quickPeek": "Quick Peek",
-    "watchTrailer": "Watch Trailer"
+    "watchTrailer": "Watch Trailer",
+    "resume": "Resume"
   },
   "modal": {
     "watchNow": "Watch Now",
@@ -52,7 +53,15 @@
     "back": "Back to Browse",
     "tryServer": "Video not loading? Try another server",
     "serverHint": "Pick a different server below — different sources may have different sources for this title.",
-    "server": "Server"
+    "server": "Server",
+    "resuming": "Resuming from"
+  },
+  "xray": {
+    "toggle": "X-Ray",
+    "cast": "Cast",
+    "music": "Music",
+    "loading": "Loading credits…",
+    "empty": "No data available."
   },
   "footer": {
     "disclaimer": "StreamVault does not host, store, or distribute any copyrighted content. All media is provided by unaffiliated third-party services. We are not responsible for the content, accuracy, or legality of material streamed through external players.",
