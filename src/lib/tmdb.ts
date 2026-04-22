@@ -116,6 +116,32 @@ export async function discoverByGenre(type: "movie" | "tv", genreId: number) {
   return data.results.map((r) => ({ ...r, media_type: type as string }));
 }
 
+export interface TMDBCastMember {
+  id: number;
+  name: string;
+  character: string;
+  profile_path: string | null;
+  order: number;
+}
+
+export interface TMDBCrewMember {
+  id: number;
+  name: string;
+  job: string;
+  department: string;
+  profile_path: string | null;
+}
+
+export interface TMDBCredits {
+  cast: TMDBCastMember[];
+  crew: TMDBCrewMember[];
+}
+
+/** Fetch cast & crew for X-Ray mode. */
+export async function getCredits(id: number, type: "movie" | "tv"): Promise<TMDBCredits> {
+  return tmdbFetch<TMDBCredits>(`/${type}/${id}/credits`);
+}
+
 /** Fetch first official YouTube trailer/teaser key. Returns null if none. */
 export async function getTrailerKey(id: number, type: "movie" | "tv"): Promise<string | null> {
   try {
