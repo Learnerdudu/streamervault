@@ -1,27 +1,30 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { HeroBanner } from "@/components/HeroBanner";
+import { SpotlightHero } from "@/components/SpotlightHero";
 import { MovieCarousel } from "@/components/MovieCarousel";
+import { MovieCard } from "@/components/MovieCard";
 import { AdBanner } from "@/components/AdBanner";
 import { ContinueWatching } from "@/components/ContinueWatching";
+import { AnimeSidebar } from "@/components/AnimeSidebar";
+import { CollectionsSection } from "@/components/CollectionsSection";
 import {
   getTrending,
   getCuratedItems,
   discoverByGenre,
+  discoverAnimeByDateRange,
   type TMDBMovie,
 } from "@/lib/tmdb";
+import { ANIME_SEASONS } from "@/lib/animeSeasons";
 import { getTopGenre } from "@/lib/genreAffinity";
 
-// Editorial Trending row
 const TRENDING_PICKS: Array<{ id: number; type: "movie" | "tv" }> = [
   { id: 76479, type: "tv" },
   { id: 502356, type: "movie" },
   { id: 66732, type: "tv" },
 ];
 
-// Mood collections — TMDB genre IDs
 const GENRE_ACTION = 28;
 const GENRE_HORROR = 27;
 const GENRE_DRAMA = 18;
@@ -38,6 +41,11 @@ const Index = () => {
   const [picked, setPicked] = useState<TMDBMovie[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Anime season filtering (instant, no reload)
+  const [activeSeason, setActiveSeason] = useState<string | null>(null);
+  const [seasonItems, setSeasonItems] = useState<TMDBMovie[]>([]);
+  const [seasonLoading, setSeasonLoading] = useState(false);
+
   useEffect(() => {
     const topGenre = getTopGenre();
     const personalizedReq = topGenre
@@ -51,7 +59,7 @@ const Index = () => {
       discoverByGenre("movie", GENRE_HORROR),
       discoverByGenre("tv", GENRE_DRAMA),
       discoverByGenre("movie", GENRE_DRAMA),
-      discoverByGenre("tv", 35), // comedy as cult
+      discoverByGenre("tv", 35),
       personalizedReq,
     ])
       .then(([curated, trendingAll, action, horror, dramaTv, dramaMovie, comedyTv, personalized]) => {
@@ -67,6 +75,31 @@ const Index = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  // Load anime when a season is selected
+  useEffect(() => {
+    if (!activeSeason) {
+      setSeasonItems([]);
+      return;
+    }
+    const season = ANIME_SEASONS.find((s) => s.id === activeSeason);
+    if (!season) return;
+    setSeasonLoading(true);
+    Promise.all([
+      discoverAnimeByDateRange("tv", season.from, season.to),
+      discoverAnimeByDateRange("movie", season.from, season.to),
+    ])
+      .then(([tv, movies]) => {
+        const merged = [...tv, ...movies].filter((i) => i.poster_path);
+        setSeasonItems(merged);
+      })
+      .finally(() => setSeasonLoading(false));
+  }, [activeSeason]);
+
+  const activeLabel = useMemo(
+    () => ANIME_SEASONS.find((s) => s.id === activeSeason)?.label ?? null,
+    [activeSeason],
+  );
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -75,26 +108,68 @@ const Index = () => {
     );
   }
 
-  const heroItem = heroPool[0];
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      {heroItem && <HeroBanner item={heroItem} />}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-[100px] pb-16 sm:px-6">
-        <AdBanner />
-        <ContinueWatching />
-        {picked.length > 0 && (
-          <MovieCarousel title={t("rows.pickedForYou")} items={picked} mediaType="movie" />
-        )}
-        <MovieCarousel title={t("rows.trending")} items={trending} />
-        <MovieCarousel title={t("rows.adrenaline")} items={adrenaline} mediaType="movie" />
-        <MovieCarousel title={t("rows.lateNight")} items={lateNight} mediaType="movie" />
-        <MovieCarousel title={t("rows.ethereal")} items={ethereal} mediaType="tv" />
-        <MovieCarousel title={t("rows.vault")} items={vault} mediaType="movie" />
-        <MovieCarousel title={t("rows.cult")} items={cult} mediaType="tv" />
+      <AnimeSidebar activeSeasonId={activeSeason} onSelectSeason={setActiveSeason} />
+
+      {/* Spotlight rotates between top-3 trending titles */}
+      {!activeSeason && heroPool.length > 0 && <SpotlightHero items={heroPool} />}
+
+      {/* Main content shifts right to clear the sidebar on md+ */}
+      <div className="md:pl-56">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-[100px] pb-16 sm:px-6">
+          <AdBanner />
+
+          {activeSeason ? (
+            <section>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="font-display text-2xl tracking-wide text-foreground sm:text-3xl">
+                  🌸 {activeLabel} Anime
+                </h2>
+                <button
+                  onClick={() => setActiveSeason(null)}
+                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary"
+                >
+                  Clear filter
+                </button>
+              </div>
+              {seasonLoading ? (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} className="aspect-[2/3] animate-pulse rounded-md bg-muted/40" />
+                  ))}
+                </div>
+              ) : seasonItems.length === 0 ? (
+                <p className="py-12 text-center text-sm text-muted-foreground">
+                  No titles found for this season.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                  {seasonItems.map((item) => (
+                    <MovieCard key={`${item.media_type}-${item.id}`} item={item} mediaType={item.media_type} />
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : (
+            <>
+              <ContinueWatching />
+              <CollectionsSection />
+              {picked.length > 0 && (
+                <MovieCarousel title={t("rows.pickedForYou")} items={picked} mediaType="movie" />
+              )}
+              <MovieCarousel title={t("rows.trending")} items={trending} />
+              <MovieCarousel title={t("rows.adrenaline")} items={adrenaline} mediaType="movie" />
+              <MovieCarousel title={t("rows.lateNight")} items={lateNight} mediaType="movie" />
+              <MovieCarousel title={t("rows.ethereal")} items={ethereal} mediaType="tv" />
+              <MovieCarousel title={t("rows.vault")} items={vault} mediaType="movie" />
+              <MovieCarousel title={t("rows.cult")} items={cult} mediaType="tv" />
+            </>
+          )}
+        </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 };
