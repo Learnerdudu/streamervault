@@ -97,17 +97,8 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
           to={`/watch/${type}/${item.id}`}
           onClick={handlePlay}
           className={`movie-card group relative block overflow-hidden rounded-lg transition-all duration-500 ease-out ${
-            hovering && !isMobile ? "z-30 scale-110" : "z-0 scale-100"
+            hovering && !isMobile ? "z-30 scale-110 rim-light" : "z-0 scale-100"
           }`}
-          style={
-            hovering && !isMobile
-              ? {
-                  // Rim light glow — colored from primary token
-                  boxShadow:
-                    "0 0 0 1px hsl(var(--primary) / 0.6), 0 0 30px hsl(var(--primary) / 0.45), 0 20px 50px -10px hsl(0 0% 0% / 0.8)",
-                }
-              : undefined
-          }
         >
           {/* Poster — fades out when video is ready */}
           {poster ? (
