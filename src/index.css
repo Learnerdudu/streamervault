@@ -48,6 +48,17 @@
     --shadow-poster: 0 10px 30px -10px hsl(0 0% 0% / 0.6);
     --shadow-glow: 0 0 40px hsl(357 92% 47% / 0.4);
 
+    /* === Unified Glow + Glass tokens ===
+       Single source of truth so the rim-light on movie cards and the blur
+       on the search overlay share the exact same color identity. */
+    --glow-hue: 357 92% 47%;                 /* same hue as --primary */
+    --glow-tint: hsl(var(--glow-hue));
+    --glass-tint: hsl(var(--glow-hue) / 0.08);  /* faint tint inside the glass */
+    --glass-border: hsl(0 0% 100% / 0.12);
+    --rim-light: 0 0 0 1px hsl(var(--glow-hue) / 0.6),
+                 0 0 30px hsl(var(--glow-hue) / 0.45),
+                 0 20px 50px -10px hsl(0 0% 0% / 0.8);
+
     --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 92%;
     --sidebar-primary: 357 92% 47%;
