@@ -94,9 +94,10 @@ export function GlassSearchOverlay({ open, onOpenChange }: Props) {
       tabIndex={-1}
       className="fixed inset-0 z-[100] flex flex-col items-center px-4 pt-24 sm:pt-32 animate-fade-in"
       style={{
-        background: "hsl(0 0% 4% / 0.6)",
-        backdropFilter: "blur(40px) saturate(140%)",
-        WebkitBackdropFilter: "blur(40px) saturate(140%)",
+        background:
+          "radial-gradient(ellipse at top, hsl(var(--glow-hue) / 0.12), hsl(0 0% 4% / 0.7))",
+        backdropFilter: "blur(40px) saturate(160%)",
+        WebkitBackdropFilter: "blur(40px) saturate(160%)",
       }}
       role="dialog"
       aria-modal="true"

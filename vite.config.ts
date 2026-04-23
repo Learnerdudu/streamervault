@@ -5,6 +5,9 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // Relative base ensures all built asset paths are like "assets/index.js"
+  // (no leading slash) so the bundle works on InfinityFree subdirectories.
+  base: "./",
   server: {
     host: "::",
     port: 8080,
