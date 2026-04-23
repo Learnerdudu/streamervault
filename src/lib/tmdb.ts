@@ -41,9 +41,35 @@ export interface TMDBVideo {
   name: string;
 }
 
+// --- Adult-content purity filter (strict) ---
+// TMDB genre 18 = "Drama" — NOT adult. The actual flag is item.adult (boolean).
+// We also filter on common adult keywords in title/overview to catch edge cases
+// where unrated soft-core titles slip through TMDB's flag.
+const ADULT_KEYWORDS = [
+  "porn", "xxx", "erotic", "erotica", "hentai", "softcore", "hardcore",
+  "nude", "nudity", "sex tape", "explicit", "adult film", "18+", "milf",
+];
+
+function looksAdult(item: Partial<TMDBMovie> & { adult?: boolean; original_title?: string; original_name?: string }): boolean {
+  if (item.adult === true) return true;
+  const haystack = [
+    item.title, item.name, item.original_title, item.original_name, item.overview,
+  ].filter(Boolean).join(" ").toLowerCase();
+  return ADULT_KEYWORDS.some((k) => haystack.includes(k));
+}
+
+/** Strip adult titles from any TMDB result list. */
+export function purify<T extends Partial<TMDBMovie> & { adult?: boolean }>(items: T[]): T[] {
+  return items.filter((i) => !looksAdult(i));
+}
+
 async function tmdbFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
   const url = new URL(`${BASE_URL}${endpoint}`);
   url.searchParams.set("api_key", TMDB_API_KEY);
+  // Strict default: never request adult content. Callers can still override per-call.
+  if (!("include_adult" in params)) {
+    url.searchParams.set("include_adult", "false");
+  }
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`TMDB error: ${res.status}`);
