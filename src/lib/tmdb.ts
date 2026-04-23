@@ -116,6 +116,27 @@ export async function discoverByGenre(type: "movie" | "tv", genreId: number) {
   return data.results.map((r) => ({ ...r, media_type: type as string }));
 }
 
+/**
+ * Discover anime (Japanese animation, genre 16) within a date range.
+ * Used for the seasonal Anime sidebar (Winter/Summer/Fall yearly windows).
+ */
+export async function discoverAnimeByDateRange(
+  type: "tv" | "movie",
+  fromDate: string,
+  toDate: string,
+) {
+  const dateKeyFrom = type === "tv" ? "first_air_date.gte" : "primary_release_date.gte";
+  const dateKeyTo = type === "tv" ? "first_air_date.lte" : "primary_release_date.lte";
+  const data = await tmdbFetch<{ results: TMDBMovie[] }>(`/discover/${type}`, {
+    with_genres: "16",
+    with_original_language: "ja",
+    sort_by: "popularity.desc",
+    [dateKeyFrom]: fromDate,
+    [dateKeyTo]: toDate,
+  });
+  return data.results.map((r) => ({ ...r, media_type: type as string }));
+}
+
 export interface TMDBCastMember {
   id: number;
   name: string;
