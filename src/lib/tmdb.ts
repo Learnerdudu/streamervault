@@ -78,27 +78,27 @@ async function tmdbFetch<T>(endpoint: string, params: Record<string, string> = {
 
 export async function getTrending(type: "movie" | "tv" | "all" = "all") {
   const data = await tmdbFetch<{ results: TMDBMovie[] }>(`/trending/${type}/week`);
-  return data.results;
+  return purify(data.results);
 }
 
 export async function getPopularMovies() {
   const data = await tmdbFetch<{ results: TMDBMovie[] }>("/movie/popular");
-  return data.results;
+  return purify(data.results);
 }
 
 export async function getTopRatedMovies() {
   const data = await tmdbFetch<{ results: TMDBMovie[] }>("/movie/top_rated");
-  return data.results;
+  return purify(data.results);
 }
 
 export async function getPopularTV() {
   const data = await tmdbFetch<{ results: TMDBMovie[] }>("/tv/popular");
-  return data.results;
+  return purify(data.results);
 }
 
 export async function getTopRatedTV() {
   const data = await tmdbFetch<{ results: TMDBMovie[] }>("/tv/top_rated");
-  return data.results;
+  return purify(data.results);
 }
 
 export async function getMovieDetails(id: number) {
@@ -114,7 +114,8 @@ export async function getTVDetails(id: number) {
 
 export async function searchMulti(query: string) {
   const data = await tmdbFetch<{ results: TMDBMovie[] }>("/search/multi", { query });
-  return data.results.filter((r) => r.media_type === "movie" || r.media_type === "tv");
+  const filtered = data.results.filter((r) => r.media_type === "movie" || r.media_type === "tv");
+  return purify(filtered);
 }
 
 export async function getCuratedItems(
@@ -130,7 +131,7 @@ export async function getCuratedItems(
       }
     }),
   );
-  return results.filter((r): r is TMDBMovie => r !== null);
+  return purify(results.filter((r): r is TMDBMovie => r !== null));
 }
 
 /** Discover by TMDB genre id — used for mood collections + personalization. */
@@ -139,7 +140,7 @@ export async function discoverByGenre(type: "movie" | "tv", genreId: number) {
     with_genres: String(genreId),
     sort_by: "popularity.desc",
   });
-  return data.results.map((r) => ({ ...r, media_type: type as string }));
+  return purify(data.results.map((r) => ({ ...r, media_type: type as string })));
 }
 
 /**
