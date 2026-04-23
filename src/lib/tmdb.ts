@@ -161,7 +161,7 @@ export async function discoverAnimeByDateRange(
     [dateKeyFrom]: fromDate,
     [dateKeyTo]: toDate,
   });
-  return data.results.map((r) => ({ ...r, media_type: type as string }));
+  return purify(data.results.map((r) => ({ ...r, media_type: type as string })));
 }
 
 export interface TMDBCastMember {
