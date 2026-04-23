@@ -144,7 +144,7 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
           {!isMobile && hovering && (
             <div className="pointer-events-none absolute left-2 right-2 top-2 flex flex-wrap gap-1.5 animate-fade-in">
               {matchPct !== null && (
-                <span className="glass-badge text-[10px] font-bold text-emerald-300">
+                <span className="glass-badge text-[10px] font-bold text-primary">
                   <Sparkles className="h-2.5 w-2.5" /> {matchPct}% Match
                 </span>
               )}
