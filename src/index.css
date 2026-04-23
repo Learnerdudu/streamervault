@@ -87,10 +87,25 @@
   .carousel-row::-webkit-scrollbar { display: none; }
 
   .movie-card {
-    @apply relative flex-shrink-0 w-[140px] sm:w-[170px] md:w-[190px] overflow-hidden rounded-md bg-card transition-all duration-300 hover:scale-[1.06] hover:z-20;
+    @apply relative flex-shrink-0 w-[140px] sm:w-[170px] md:w-[190px] overflow-hidden rounded-md bg-card transition-all duration-300 hover:z-20;
     box-shadow: var(--shadow-poster);
   }
-  .movie-card:hover { box-shadow: var(--shadow-glow); }
+
+  /* Liquid Glass — shared glassmorphic surface (search overlay, badges, panels) */
+  .glass-panel {
+    background: hsl(0 0% 100% / 0.06);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid hsl(0 0% 100% / 0.1);
+  }
+
+  .glass-badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5;
+    background: hsl(0 0% 0% / 0.45);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid hsl(0 0% 100% / 0.12);
+  }
 }
 
 /* RTL refinements — keep carousels LTR-flowing for visual consistency,
