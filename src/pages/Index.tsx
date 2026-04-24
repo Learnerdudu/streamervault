@@ -7,7 +7,7 @@ import { MovieCarousel } from "@/components/MovieCarousel";
 import { MovieCard } from "@/components/MovieCard";
 import { AdBanner } from "@/components/AdBanner";
 import { ContinueWatching } from "@/components/ContinueWatching";
-import { AnimeSidebar } from "@/components/AnimeSidebar";
+import { AnimeCategoriesNav } from "@/components/AnimeCategoriesNav";
 import { CollectionsSection } from "@/components/CollectionsSection";
 import {
   getTrending,
@@ -111,14 +111,15 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <AnimeSidebar activeSeasonId={activeSeason} onSelectSeason={setActiveSeason} />
 
       {/* Spotlight rotates between top-3 trending titles */}
       {!activeSeason && heroPool.length > 0 && <SpotlightHero items={heroPool} />}
 
-      {/* Main content shifts right to clear the sidebar on md+ */}
-      <div className="md:pl-56">
-        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-[100px] pb-16 sm:px-6">
+      <div>
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6">
+          {/* Horizontal HiAnime category bar — sits below the hero */}
+          <AnimeCategoriesNav activeSeasonId={activeSeason} onSelectSeason={setActiveSeason} />
+
           <AdBanner />
 
           {activeSeason ? (

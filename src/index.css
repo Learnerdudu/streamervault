@@ -123,7 +123,24 @@
   .rim-light {
     box-shadow: var(--rim-light);
   }
-}
+  }
+
+  /* HiAnime pill — glassy category button with neon-red hover glow */
+  .anime-pill {
+    backdrop-filter: blur(15px) saturate(160%);
+    -webkit-backdrop-filter: blur(15px) saturate(160%);
+  }
+  .anime-pill:hover {
+    box-shadow: 0 0 24px hsl(var(--glow-hue) / 0.55), inset 0 0 0 1px hsl(var(--glow-hue) / 0.4);
+  }
+
+  /* Force consistent poster aspect — fixes "squashed" cards */
+  .movie-card img,
+  .poster-img {
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    width: 100%;
+  }
 
 /* RTL refinements — keep carousels LTR-flowing for visual consistency,
    but flip layout direction globally so navbar/forms/text align correctly. */
