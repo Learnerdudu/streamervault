@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Star, Eye, Plus, Clock, Sparkles } from "lucide-react";
+import { Star, Clock, Sparkles } from "lucide-react";
 
 import { getImageUrl, getTrailerKey, type TMDBMovie } from "@/lib/tmdb";
 import { trackGenres } from "@/lib/genreAffinity";
-import { QuickPeekModal } from "@/components/QuickPeekModal";
-import { CollectionPicker } from "@/components/CollectionPicker";
-import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Props {
@@ -23,14 +20,11 @@ const HOVER_DELAY_MS = 800;
  * - Mobile/touch: static enlarged poster (no trailer fetch, saves data).
  */
 export function HoverPreviewCard({ item, mediaType }: Props) {
-  const { user } = useAuth();
   const isMobile = useIsMobile();
   const [hovering, setHovering] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [trailerRequested, setTrailerRequested] = useState(false);
-  const [peekOpen, setPeekOpen] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(false);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const type = (mediaType || item.media_type || "movie") as "movie" | "tv";
@@ -73,18 +67,6 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
 
   function handlePlay() {
     trackGenres(item.genre_ids);
-  }
-
-  function openPeek(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    setPeekOpen(true);
-  }
-
-  function openPicker(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    setPickerOpen(true);
   }
 
   return (
