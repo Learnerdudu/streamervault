@@ -13,7 +13,7 @@ import {
   getPlayerUrl,
   type TMDBTVDetails,
 } from "@/lib/tmdb";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/externalSupabase";
 import { useAuth } from "@/hooks/useAuth";
 
 const SERVER_LABELS = ["Vaplayer", "StreamIMDB", "VidLink", "Legacy (vidsrc)"];
