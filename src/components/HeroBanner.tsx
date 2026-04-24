@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Play, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getImageUrl, getTrailerKey, type TMDBMovie } from "@/lib/tmdb";
 
@@ -72,17 +70,6 @@ export function HeroBanner({ item }: HeroBannerProps) {
         >
           {item.overview}
         </p>
-        <div className="mt-7 flex gap-3">
-          <Link
-            to={`/watch/${type}/${item.id}`}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-7 py-3 text-sm font-bold text-primary-foreground shadow-lg transition-all hover:bg-[hsl(var(--primary-hover))] hover:shadow-[var(--shadow-glow)]"
-          >
-            <Play className="h-5 w-5 fill-current" /> {t("hero.playNow")}
-          </Link>
-          <button className="inline-flex items-center gap-2 rounded-md bg-secondary/80 px-7 py-3 text-sm font-bold text-foreground backdrop-blur-sm transition-colors hover:bg-secondary">
-            <Info className="h-5 w-5" /> {t("hero.moreInfo")}
-          </button>
-        </div>
       </div>
     </div>
   );
