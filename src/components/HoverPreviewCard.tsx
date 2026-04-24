@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Star, Play, Eye, Plus, Clock, Sparkles } from "lucide-react";
+import { Star, Eye, Plus, Clock, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getImageUrl, getTrailerKey, type TMDBMovie } from "@/lib/tmdb";
 import { trackGenres } from "@/lib/genreAffinity";
@@ -43,6 +43,8 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
   const matchPct = item.vote_average > 0 ? Math.round(item.vote_average * 10) : null;
   // Resolution heuristic: high-budget recent releases tend to be 4K-available
   const resolution = item.vote_average >= 7.5 ? "4K" : "HD";
+  // Anime detection (TMDB genre 16 = Animation) → show SUB/DUB badges
+  const isAnime = item.genre_ids?.includes(16) ?? false;
 
   // Lazy: fetch trailer key only after the hover-delay fires
   function handleEnter() {
@@ -161,22 +163,26 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
             </button>
           )}
 
-          {/* Action overlay */}
-          <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-background/95 via-background/40 to-transparent px-2 pb-3 pt-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            <div className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 shadow-xl">
-              <Play className="h-3 w-3 fill-current text-primary-foreground" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
-                {t("card.quickPlay")}
+          {/* SUB / DUB corner badges for anime */}
+          {isAnime && (
+            <div className="pointer-events-none absolute right-2 top-2 flex flex-col gap-1">
+              <span className="rounded-sm bg-primary/90 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary-foreground shadow-md">
+                SUB
+              </span>
+              <span className="rounded-sm bg-foreground/90 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-background shadow-md">
+                DUB
               </span>
             </div>
-            <button
-              onClick={openPeek}
-              aria-label="Quick peek"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary/90 backdrop-blur-sm transition-colors hover:bg-secondary"
-            >
-              <Eye className="h-3.5 w-3.5 text-foreground" />
-            </button>
-          </div>
+          )}
+
+          {/* Quick Peek button (kept; play/pause/skip overlay removed for clean preview) */}
+          <button
+            onClick={openPeek}
+            aria-label="Quick peek"
+            className="absolute bottom-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/70 text-foreground opacity-0 backdrop-blur-md transition-all hover:bg-secondary group-hover:opacity-100"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
 
           {/* Title strip — only when not playing video */}
           {!showVideo && (
