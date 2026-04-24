@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Star, Eye, Plus, Clock, Sparkles } from "lucide-react";
-import { useTranslation } from "react-i18next";
+
 import { getImageUrl, getTrailerKey, type TMDBMovie } from "@/lib/tmdb";
 import { trackGenres } from "@/lib/genreAffinity";
 import { QuickPeekModal } from "@/components/QuickPeekModal";
@@ -23,7 +23,6 @@ const HOVER_DELAY_MS = 800;
  * - Mobile/touch: static enlarged poster (no trailer fetch, saves data).
  */
 export function HoverPreviewCard({ item, mediaType }: Props) {
-  const { t } = useTranslation();
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [hovering, setHovering] = useState(false);
