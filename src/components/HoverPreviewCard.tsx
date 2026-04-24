@@ -162,9 +162,6 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
           )}
         </Link>
       </div>
-
-      <QuickPeekModal item={item} mediaType={type} open={peekOpen} onOpenChange={setPeekOpen} />
-      <CollectionPicker item={item} mediaType={type} open={pickerOpen} onOpenChange={setPickerOpen} />
     </>
   );
 }
