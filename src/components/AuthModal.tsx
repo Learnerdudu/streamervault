@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/externalSupabase";
 import { toast } from "@/hooks/use-toast";
 
 const emailSchema = z.string().trim().email({ message: "Invalid email" }).max(255);
