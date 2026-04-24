@@ -151,18 +151,7 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
             </div>
           )}
 
-          {/* Add-to-vault floating button */}
-          {user && (
-            <button
-              onClick={openPicker}
-              aria-label="Add to vault"
-              className="absolute right-2 bottom-14 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/70 text-foreground opacity-0 backdrop-blur-md transition-all hover:bg-primary hover:text-primary-foreground group-hover:opacity-100"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          )}
-
-          {/* SUB / DUB corner badges for anime */}
+          {/* SUB / DUB corner badges for anime (informational, not interactive) */}
           {isAnime && (
             <div className="pointer-events-none absolute right-2 top-2 flex flex-col gap-1">
               <span className="rounded-sm bg-primary/90 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary-foreground shadow-md">
@@ -173,15 +162,6 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
               </span>
             </div>
           )}
-
-          {/* Quick Peek button (kept; play/pause/skip overlay removed for clean preview) */}
-          <button
-            onClick={openPeek}
-            aria-label="Quick peek"
-            className="absolute bottom-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/70 text-foreground opacity-0 backdrop-blur-md transition-all hover:bg-secondary group-hover:opacity-100"
-          >
-            <Eye className="h-4 w-4" />
-          </button>
 
           {/* Title strip — only when not playing video */}
           {!showVideo && (
