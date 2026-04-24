@@ -41,17 +41,21 @@ export interface TMDBVideo {
   name: string;
 }
 
-// --- Adult-content purity filter (strict) ---
-// TMDB genre 18 = "Drama" — NOT adult. The actual flag is item.adult (boolean).
-// We also filter on common adult keywords in title/overview to catch edge cases
-// where unrated soft-core titles slip through TMDB's flag.
+// --- Iron Wall Adult-Content Filter (strict) ---
+// Blocks by: TMDB adult flag, blocklisted genre IDs, and keyword scrub on title/overview.
+// NOTE: TMDB genre 18 is "Drama" (not adult). Blocking it per explicit request will
+// reduce drama rows on the homepage.
+const ADULT_GENRE_IDS = new Set<number>([18, 10749]);
+
 const ADULT_KEYWORDS = [
   "porn", "xxx", "erotic", "erotica", "hentai", "softcore", "hardcore",
   "nude", "nudity", "sex tape", "explicit", "adult film", "18+", "milf",
+  "uncensored", "ecchi", "lewd", "fetish", "smut",
 ];
 
 function looksAdult(item: Partial<TMDBMovie> & { adult?: boolean; original_title?: string; original_name?: string }): boolean {
   if (item.adult === true) return true;
+  if (item.genre_ids?.some((g) => ADULT_GENRE_IDS.has(g))) return true;
   const haystack = [
     item.title, item.name, item.original_title, item.original_name, item.overview,
   ].filter(Boolean).join(" ").toLowerCase();
