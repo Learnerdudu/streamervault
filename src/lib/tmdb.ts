@@ -1,4 +1,7 @@
-const TMDB_API_KEY = "2dca580c2a14b55200e784d157207b4d";
+import { appConfig } from "@/config/appConfig";
+import { sanitize } from "@/utils/SecurityMiddleware";
+
+const TMDB_API_KEY = appConfig.TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p";
 
@@ -41,31 +44,9 @@ export interface TMDBVideo {
   name: string;
 }
 
-// --- Iron Wall Adult-Content Filter (strict) ---
-// Blocks by: TMDB adult flag, blocklisted genre IDs, and keyword scrub on title/overview.
-// NOTE: TMDB genre 18 is "Drama" (not adult). Blocking it per explicit request will
-// reduce drama rows on the homepage.
-const ADULT_GENRE_IDS = new Set<number>([18, 10749]);
-
-const ADULT_KEYWORDS = [
-  "porn", "xxx", "erotic", "erotica", "hentai", "softcore", "hardcore",
-  "nude", "nudity", "sex tape", "explicit", "adult film", "18+", "milf",
-  "uncensored", "ecchi", "lewd", "fetish", "smut",
-];
-
-function looksAdult(item: Partial<TMDBMovie> & { adult?: boolean; original_title?: string; original_name?: string }): boolean {
-  if (item.adult === true) return true;
-  if (item.genre_ids?.some((g) => ADULT_GENRE_IDS.has(g))) return true;
-  const haystack = [
-    item.title, item.name, item.original_title, item.original_name, item.overview,
-  ].filter(Boolean).join(" ").toLowerCase();
-  return ADULT_KEYWORDS.some((k) => haystack.includes(k));
-}
-
-/** Strip adult titles from any TMDB result list. */
-export function purify<T extends Partial<TMDBMovie> & { adult?: boolean }>(items: T[]): T[] {
-  return items.filter((i) => !looksAdult(i));
-}
+// Iron Wall 2.0: synchronous sanitizer lives in src/utils/SecurityMiddleware.ts
+// (re-exported as `purify` for any legacy importers).
+export const purify = sanitize;
 
 async function tmdbFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
   const url = new URL(`${BASE_URL}${endpoint}`);
