@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, X, Star } from "lucide-react";
+import { Search, X, Star, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { searchMulti, getImageUrl, type TMDBMovie } from "@/lib/tmdb";
+import { searchAniList } from "@/lib/anilist";
 
 interface Props {
   open: boolean;
@@ -10,23 +11,23 @@ interface Props {
 }
 
 /**
- * Full-screen glassmorphic search overlay.
- * - Centered wide glass bar
- * - Large horizontal result tiles (poster + title + year + 1-line desc)
- * - Arrow keys + Enter for keyboard navigation
- * - Esc closes
+ * Hyper-Search overlay with cascading fallback:
+ *   Tier 1 — TMDB (direct title match)
+ *   Tier 2 — AniList GraphQL (semantic plot/synonym match for anime)
+ * Tier 3 (Kitsu) and Tier 4 (TMDB keywords) intentionally deferred — they add
+ * latency and rarely surface anything not already in T1+T2.
  */
 export function GlassSearchOverlay({ open, onOpenChange }: Props) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<TMDBMovie[]>([]);
+  const [tier2Used, setTier2Used] = useState(false);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
-  // Focus input + lock body scroll when opening
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -36,30 +37,41 @@ export function GlassSearchOverlay({ open, onOpenChange }: Props) {
       setQuery("");
       setResults([]);
       setActive(0);
+      setTier2Used(false);
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // Debounced search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (query.trim().length < 2) {
       setResults([]);
       setActive(0);
+      setTier2Used(false);
       return;
     }
     setLoading(true);
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await searchMulti(query);
-        setResults(res.filter((r) => r.poster_path).slice(0, 8));
+        // Tier 1
+        const tmdb = (await searchMulti(query)).filter((r) => r.poster_path).slice(0, 8);
+        let merged = tmdb;
+        let usedT2 = false;
+        // Tier 2 — fire if Tier 1 thin
+        if (tmdb.length < 5) {
+          const anilist = await searchAniList(query, 8);
+          const seen = new Set(tmdb.map((r) => `${r.media_type}-${r.id}`));
+          const extra = anilist.filter((a) => !seen.has(`${a.media_type}-${a.id}`));
+          merged = [...tmdb, ...extra].slice(0, 12);
+          usedT2 = extra.length > 0;
+        }
+        setResults(merged);
+        setTier2Used(usedT2);
         setActive(0);
       } finally {
         setLoading(false);
       }
-    }, 250);
+    }, 280);
   }, [query]);
 
   function go(item: TMDBMovie) {
