@@ -17,10 +17,10 @@
     --popover: 0 0% 9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 357 92% 47%;
+    --primary: 0 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 357 92% 40%;
-    --primary-glow: 357 92% 60%;
+    --primary-hover: 0 100% 42%;
+    --primary-glow: 0 100% 60%;
 
     --secondary: 0 0% 14%;
     --secondary-foreground: 0 0% 92%;
@@ -31,12 +31,12 @@
     --accent: 0 0% 16%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 357 92% 47%;
+    --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 18%;
     --input: 0 0% 18%;
-    --ring: 357 92% 47%;
+    --ring: 0 100% 50%;
 
     --surface: 0 0% 9%;
     --surface-hover: 0 0% 15%;
@@ -46,12 +46,12 @@
     --gradient-hero: linear-gradient(180deg, hsl(0 0% 6% / 0) 0%, hsl(0 0% 6% / 0.6) 60%, hsl(0 0% 6%) 100%);
     --gradient-hero-side: linear-gradient(90deg, hsl(0 0% 6% / 0.95) 0%, hsl(0 0% 6% / 0.4) 50%, transparent 100%);
     --shadow-poster: 0 10px 30px -10px hsl(0 0% 0% / 0.6);
-    --shadow-glow: 0 0 40px hsl(357 92% 47% / 0.4);
+    --shadow-glow: 0 0 40px hsl(0 100% 50% / 0.45);
 
     /* === Unified Glow + Glass tokens ===
        Single source of truth so the rim-light on movie cards and the blur
        on the search overlay share the exact same color identity. */
-    --glow-hue: 357 92% 47%;                 /* same hue as --primary */
+    --glow-hue: 0 100% 50%;                  /* pure neon red, matches --primary */
     --glow-tint: hsl(var(--glow-hue));
     --glass-tint: hsl(var(--glow-hue) / 0.08);  /* faint tint inside the glass */
     --glass-border: hsl(0 0% 100% / 0.12);
@@ -61,12 +61,12 @@
 
     --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 357 92% 47%;
+    --sidebar-primary: 0 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 14%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 357 92% 47%;
+    --sidebar-ring: 0 100% 50%;
   }
 }
 
