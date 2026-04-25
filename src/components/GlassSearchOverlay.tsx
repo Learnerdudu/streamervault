@@ -157,6 +157,11 @@ export function GlassSearchOverlay({ open, onOpenChange }: Props) {
 
       {/* Results */}
       <div className="mt-6 w-full max-w-3xl space-y-2 overflow-y-auto pb-20">
+        {tier2Used && (
+          <p className="px-1 pb-1 text-[10px] uppercase tracking-[0.2em] text-primary/80">
+            Tier 2 · AniList semantic match included
+          </p>
+        )}
         {results.map((item, i) => {
           const title = item.title || item.name || "Untitled";
           const year = (item.release_date || item.first_air_date || "").slice(0, 4);
