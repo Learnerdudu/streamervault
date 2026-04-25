@@ -9,6 +9,7 @@ import { AdBanner } from "@/components/AdBanner";
 import { ContinueWatching } from "@/components/ContinueWatching";
 import { AnimeCategoriesNav } from "@/components/AnimeCategoriesNav";
 import { CollectionsSection } from "@/components/CollectionsSection";
+import { LiveCountdown } from "@/components/LiveCountdown";
 import {
   getTrending,
   getCuratedItems,
@@ -155,6 +156,7 @@ const Index = () => {
             </section>
           ) : (
             <>
+              <LiveCountdown />
               <ContinueWatching />
               <CollectionsSection />
               {picked.length > 0 && (
