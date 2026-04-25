@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Star, Clock, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { Star, Clock, Sparkles, Play } from "lucide-react";
 
 import { getImageUrl, getTrailerKey, type TMDBMovie } from "@/lib/tmdb";
 import { trackGenres } from "@/lib/genreAffinity";
@@ -14,10 +15,11 @@ interface Props {
 const HOVER_DELAY_MS = 800;
 
 /**
- * Card with Quick-Peek video portal.
- * - Desktop: hover >800ms → scale 1.1, cross-fade poster → muted YouTube trailer loop,
- *   glowing rim light + glassmorphic Match%/Resolution/Runtime badges.
- * - Mobile/touch: static enlarged poster (no trailer fetch, saves data).
+ * Module 6 — Neon-Red Interaction.
+ * - framer-motion scale 1.12 + 0 0 15px #ff0000 border-glow on hover
+ * - Custom red neon Play icon slides up (no white circular overlays)
+ * - Lazy trailer load after 800ms hover
+ * - Mobile: static enlarged poster
  */
 export function HoverPreviewCard({ item, mediaType }: Props) {
   const isMobile = useIsMobile();
@@ -29,23 +31,20 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
 
   const type = (mediaType || item.media_type || "movie") as "movie" | "tv";
   const title = item.title || item.name || "Untitled";
-  const poster = getImageUrl(item.poster_path, "w342");
+  const poster = getImageUrl(item.poster_path, "w342") || item.poster_path; // also handles raw URLs from Jikan
   const year = (item.release_date || item.first_air_date || "").slice(0, 4);
 
-  // Match % derived from TMDB rating (0–10 → 0–100)
   const matchPct = item.vote_average > 0 ? Math.round(item.vote_average * 10) : null;
-  // Resolution heuristic: high-budget recent releases tend to be 4K-available
   const resolution = item.vote_average >= 7.5 ? "4K" : "HD";
-  // Anime detection (TMDB genre 16 = Animation) → show SUB/DUB badges
   const isAnime = item.genre_ids?.includes(16) ?? false;
 
-  // Lazy: fetch trailer key only after the hover-delay fires
   function handleEnter() {
     if (isMobile) return;
     setHovering(true);
     if (hoverTimer.current) clearTimeout(hoverTimer.current);
     hoverTimer.current = setTimeout(() => {
-      if (!trailerRequested) {
+      // Synthetic id (AniList/Jikan) — no TMDB trailer, skip fetch
+      if (!trailerRequested && item.id < 1_000_000) {
         setTrailerRequested(true);
         getTrailerKey(item.id, type).then((key) => setTrailerKey(key));
       }
@@ -59,31 +58,34 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
     setShowVideo(false);
   }
 
-  useEffect(() => {
-    return () => {
-      if (hoverTimer.current) clearTimeout(hoverTimer.current);
-    };
-  }, []);
+  useEffect(() => () => { if (hoverTimer.current) clearTimeout(hoverTimer.current); }, []);
 
-  function handlePlay() {
-    trackGenres(item.genre_ids);
-  }
+  function handlePlay() { trackGenres(item.genre_ids); }
+
+  // For synthetic ids we can't link to /watch — fall back to "/" (search will resolve)
+  const href = item.id < 1_000_000 ? `/watch/${type}/${item.id}` : `/`;
 
   return (
-    <>
-      <div
-        onMouseEnter={handleEnter}
-        onMouseLeave={handleLeave}
-        className="relative"
+    <div
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      className="hover-preview relative"
+    >
+      <motion.div
+        animate={{
+          scale: hovering && !isMobile ? 1.12 : 1,
+          boxShadow: hovering && !isMobile
+            ? "0 0 15px #ff0000, 0 0 30px hsl(0 100% 50% / 0.45)"
+            : "0 10px 30px -10px hsl(0 0% 0% / 0.6)",
+        }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className={`relative rounded-lg ${hovering && !isMobile ? "z-30" : "z-0"}`}
       >
         <Link
-          to={`/watch/${type}/${item.id}`}
+          to={href}
           onClick={handlePlay}
-          className={`movie-card group relative block overflow-hidden rounded-lg transition-all duration-500 ease-out ${
-            hovering && !isMobile ? "z-30 scale-110 rim-light" : "z-0 scale-100"
-          }`}
+          className="movie-card group relative block overflow-hidden rounded-lg"
         >
-          {/* Poster — fades out when video is ready */}
           {poster ? (
             <img
               src={poster}
@@ -99,7 +101,6 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
             </div>
           )}
 
-          {/* Trailer cross-fade (desktop only, lazy-loaded) */}
           {!isMobile && showVideo && trailerKey && (
             <div className="pointer-events-none absolute inset-0 overflow-hidden bg-black animate-fade-in">
               <iframe
@@ -109,12 +110,10 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
                 className="absolute left-1/2 top-1/2 h-[160%] w-[160%] -translate-x-1/2 -translate-y-1/2 border-0"
                 style={{ pointerEvents: "none" }}
               />
-              {/* Soft vignette to keep badges legible */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
             </div>
           )}
 
-          {/* Quick stats — glassmorphic floating badges (desktop hover only) */}
           {!isMobile && hovering && (
             <div className="pointer-events-none absolute left-2 right-2 top-2 flex flex-wrap gap-1.5 animate-fade-in">
               {matchPct !== null && (
@@ -122,9 +121,7 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
                   <Sparkles className="h-2.5 w-2.5" /> {matchPct}% Match
                 </span>
               )}
-              <span className="glass-badge text-[10px] font-bold text-foreground">
-                {resolution}
-              </span>
+              <span className="glass-badge text-[10px] font-bold text-foreground">{resolution}</span>
               {year && (
                 <span className="glass-badge text-[10px] font-semibold text-foreground/90">
                   <Clock className="h-2.5 w-2.5" /> {year}
@@ -133,19 +130,18 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
             </div>
           )}
 
-          {/* SUB / DUB corner badges for anime (informational, not interactive) */}
           {isAnime && (
             <div className="pointer-events-none absolute right-2 top-2 flex flex-col gap-1">
-              <span className="rounded-sm bg-primary/90 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary-foreground shadow-md">
-                SUB
-              </span>
-              <span className="rounded-sm bg-foreground/90 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-background shadow-md">
-                DUB
-              </span>
+              <span className="hi-badge hi-badge--sub">SUB</span>
+              <span className="hi-badge hi-badge--dub">DUB</span>
             </div>
           )}
 
-          {/* Title strip — only when not playing video */}
+          {/* Module 6: Neon red play icon — slides up on hover */}
+          <div className="neon-play">
+            <Play className="h-5 w-5 fill-current" />
+          </div>
+
           {!showVideo && (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-1 p-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
               <p className="truncate text-xs font-semibold text-foreground">{title}</p>
@@ -161,7 +157,7 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
             </div>
           )}
         </Link>
-      </div>
-    </>
+      </motion.div>
+    </div>
   );
 }
