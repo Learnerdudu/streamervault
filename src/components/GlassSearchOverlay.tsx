@@ -74,7 +74,21 @@ export function GlassSearchOverlay({ open, onOpenChange }: Props) {
     }, 280);
   }, [query]);
 
-  function go(item: TMDBMovie) {
+  async function go(item: TMDBMovie) {
+    // AniList synthetic ids start at 1_000_000+; resolve to a real TMDB title
+    if (item.id >= 1_000_000) {
+      const title = item.title || item.name || "";
+      const tmdbHits = await searchMulti(title);
+      const real = tmdbHits.find((r) => r.poster_path);
+      if (real) {
+        const type = real.media_type === "tv" ? "tv" : "movie";
+        onOpenChange(false);
+        navigate(`/watch/${type}/${real.id}`);
+        return;
+      }
+      onOpenChange(false);
+      return;
+    }
     const type = item.media_type === "tv" ? "tv" : "movie";
     onOpenChange(false);
     navigate(`/watch/${type}/${item.id}`);
@@ -173,6 +187,11 @@ export function GlassSearchOverlay({ open, onOpenChange }: Props) {
                 <div className="flex items-baseline gap-2">
                   <h3 className="truncate text-base font-bold text-foreground">{title}</h3>
                   {year && <span className="text-xs text-muted-foreground">{year}</span>}
+                  {item.id >= 1_000_000 && (
+                    <span className="hi-badge hi-badge--hd flex items-center gap-1">
+                      <Sparkles className="h-2.5 w-2.5" /> AniList
+                    </span>
+                  )}
                 </div>
                 <div className="mt-0.5 flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
                   <span className="capitalize">{item.media_type}</span>
