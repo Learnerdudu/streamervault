@@ -73,8 +73,20 @@ export async function getTopTen(): Promise<JikanAnime[]> {
 const DAY_MAP = ["sundays", "mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays"];
 export async function getTodaysSchedule(): Promise<JikanAnime[]> {
   const day = DAY_MAP[new Date().getDay()];
-  const data = await jikan<{ data: JikanAnime[] }>(`/schedules?filter=${day}&sfw=true&limit=15`);
+  const data = await jikan<{ data: JikanAnime[] }>(`/schedules?filter=${day}&sfw=true&limit=25`);
   return safe(data.data);
+}
+
+/** Most-anticipated upcoming release for the homepage countdown. */
+export async function getNextBigRelease(): Promise<JikanAnime | null> {
+  try {
+    const data = await jikan<{ data: JikanAnime[] }>("/seasons/upcoming?limit=10&sfw=true");
+    const safeList = safe(data.data);
+    // Pick the highest scored / most-popular upcoming with a known air date.
+    return safeList.find((a) => a.aired?.from) ?? safeList[0] ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /** Convert Jikan → TMDBMovie-compatible shape so HoverPreviewCard works. */

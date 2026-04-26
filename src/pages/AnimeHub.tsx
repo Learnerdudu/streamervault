@@ -3,30 +3,36 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { AnimeCard } from "@/components/AnimeCard";
+import { CompactAnimeCard } from "@/components/CompactAnimeCard";
+import { AiringScheduleStrip } from "@/components/AiringScheduleStrip";
+import { Top10Sidebar } from "@/components/Top10Sidebar";
+import { NewsSidebar } from "@/components/NewsSidebar";
+import { LiveCountdown } from "@/components/LiveCountdown";
 import { PosterRowSkeleton, HeroSkeleton } from "@/components/Skeletons";
 import {
   getTopAiring,
   getMostPopular,
-  getMostFavorite,
   getLatestCompleted,
   getTopTen,
   getTodaysSchedule,
+  getNextBigRelease,
   jikanPosterUrl,
+  type JikanAnime,
 } from "@/lib/jikan";
 
 /**
- * Module 3 — Anime Hub.
- * Spotlight cross-fade · Top 10 with HiAnime index numbers · 4 dense rows
- * · today's airing schedule. All data via Jikan, cached 60min.
+ * Module 3 — HiAnime-style Anime Hub.
+ *  ┌─ Spotlight Hero
+ *  ├─ Estimated Schedule strip (today's airing)
+ *  └─ 2-column body: 75% dense grids · 25% Countdown + Top 10 + News
  */
 const AnimeHub = () => {
   const topAiring = useQuery({ queryKey: ["jikan", "top-airing"], queryFn: getTopAiring });
   const popular = useQuery({ queryKey: ["jikan", "most-popular"], queryFn: getMostPopular });
-  const favorite = useQuery({ queryKey: ["jikan", "most-favorite"], queryFn: getMostFavorite });
   const latest = useQuery({ queryKey: ["jikan", "latest-completed"], queryFn: getLatestCompleted });
   const top10 = useQuery({ queryKey: ["jikan", "top-10"], queryFn: getTopTen });
   const today = useQuery({ queryKey: ["jikan", "today"], queryFn: getTodaysSchedule });
+  const next = useQuery({ queryKey: ["jikan", "next-big"], queryFn: getNextBigRelease });
 
   // Spotlight rotator
   const spotlight = (top10.data ?? []).slice(0, 5);
@@ -40,10 +46,10 @@ const AnimeHub = () => {
   const current = spotlight[spotIdx];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-zinc-950">
       <Navbar />
 
-      {/* Spotlight Hero with cross-fading backdrops */}
+      {/* ── Spotlight Hero ───────────────────────────────────────────────── */}
       <section className="relative h-[70vh] min-h-[480px] w-full overflow-hidden">
         {top10.isLoading ? (
           <HeroSkeleton />
@@ -63,8 +69,8 @@ const AnimeHub = () => {
                 />
               )}
             </AnimatePresence>
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/95 via-zinc-950/40 to-transparent" />
 
             {current && (
               <div className="relative z-10 mx-auto max-w-7xl px-4 pt-32 sm:px-6">
@@ -102,13 +108,26 @@ const AnimeHub = () => {
         )}
       </section>
 
-      <main className="mx-auto max-w-7xl space-y-14 px-4 py-12 sm:px-6">
-        <Section title="🔥 Top 10 This Week" loading={top10.isLoading} numbered data={top10.data ?? []} />
-        <Section title="📡 Top Airing" loading={topAiring.isLoading} data={topAiring.data ?? []} />
-        <Section title="⭐ Most Popular" loading={popular.isLoading} data={popular.data ?? []} />
-        <Section title="❤️ Most Favorite" loading={favorite.isLoading} data={favorite.data ?? []} />
-        <Section title="✅ Latest Completed" loading={latest.isLoading} data={latest.data ?? []} />
-        <Section title="📺 Airing Today" loading={today.isLoading} data={today.data ?? []} />
+      {/* ── Estimated Schedule (Airing Today) ────────────────────────────── */}
+      <AiringScheduleStrip items={today.data ?? []} loading={today.isLoading} />
+
+      {/* ── Hi-density 2-column body ─────────────────────────────────────── */}
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <div className="grid gap-8 lg:grid-cols-[3fr_1fr]">
+          {/* ─── LEFT 75% ── grids ──────────────────────────────────────── */}
+          <div className="space-y-12">
+            <Grid title="Recently Updated" loading={topAiring.isLoading} data={topAiring.data ?? []} />
+            <Grid title="New Releases" loading={popular.isLoading} data={popular.data ?? []} />
+            <Grid title="Latest Completed" loading={latest.isLoading} data={latest.data ?? []} />
+          </div>
+
+          {/* ─── RIGHT 25% ── countdown + top10 + news ─────────────────── */}
+          <aside className="space-y-6">
+            <NextBigCountdown next={next.data ?? null} loading={next.isLoading} />
+            <Top10Sidebar items={top10.data ?? []} loading={top10.isLoading} />
+            <NewsSidebar />
+          </aside>
+        </div>
       </main>
 
       <Footer />
@@ -116,26 +135,48 @@ const AnimeHub = () => {
   );
 };
 
-interface SectionProps {
-  title: string;
-  loading: boolean;
-  data: ReturnType<typeof getTopAiring> extends Promise<infer T> ? T : never;
-  numbered?: boolean;
-}
-function Section({ title, loading, data, numbered }: SectionProps) {
+// ── Helpers ─────────────────────────────────────────────────────────────
+
+interface GridProps { title: string; loading: boolean; data: JikanAnime[] }
+function Grid({ title, loading, data }: GridProps) {
   return (
     <section>
-      <h2 className="mb-6 font-display text-3xl tracking-wide text-foreground">{title}</h2>
+      <h2 className="mb-5 flex items-center gap-2 font-display text-2xl tracking-wide text-foreground sm:text-3xl">
+        <span className="inline-block h-4 w-1 bg-primary" /> {title}
+      </h2>
       {loading ? (
         <PosterRowSkeleton />
       ) : (
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {data.slice(0, numbered ? 10 : 12).map((a, i) => (
-            <AnimeCard key={a.mal_id} anime={a} index={numbered ? i + 1 : undefined} />
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+          {data.slice(0, 15).map((a, i) => (
+            <CompactAnimeCard key={a.mal_id} anime={a} delay={Math.min(i * 0.025, 0.3)} />
           ))}
         </div>
       )}
     </section>
+  );
+}
+
+function NextBigCountdown({ next, loading }: { next: JikanAnime | null; loading: boolean }) {
+  if (loading) {
+    return (
+      <div className="h-40 animate-pulse rounded-lg border border-border/40 bg-card/40" />
+    );
+  }
+  const title = next?.title_english || next?.title || "Next Big Release";
+  const target = next?.aired?.from ?? undefined;
+  return (
+    <div className="overflow-hidden rounded-lg border border-primary/30 bg-card/40">
+      <div className="border-b border-border/40 px-4 py-2">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Next Big Release</p>
+        <p className="mt-1 truncate font-display text-lg tracking-wide text-foreground" title={title}>
+          {title}
+        </p>
+      </div>
+      <div className="px-2 pb-2">
+        <LiveCountdown target={target} label={title} />
+      </div>
+    </div>
   );
 }
 
