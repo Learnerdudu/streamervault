@@ -59,6 +59,100 @@ function toTMDBLike(m: AniListMedia): TMDBMovie & { episodes?: number | null } {
   };
 }
 
+// ─── Airing schedule (used by AnimeHub) ──────────────────────────────────────
+
+export interface AniListSchedule {
+  mal_id: number;
+  anilist_id: number;
+  title: string;
+  episode: number | null;
+  airingAt: number; // unix seconds
+  poster: string | null;
+  banner: string | null;
+}
+
+const SCHEDULE_QUERY = `
+  query ($from: Int, $to: Int, $perPage: Int) {
+    Page(page: 1, perPage: $perPage) {
+      airingSchedules(airingAt_greater: $from, airingAt_lesser: $to, sort: TIME) {
+        episode
+        airingAt
+        media {
+          id
+          idMal
+          isAdult
+          title { romaji english }
+          coverImage { large extraLarge }
+          bannerImage
+          countryOfOrigin
+          format
+        }
+      }
+    }
+  }
+`;
+
+interface ScheduleEntry {
+  episode: number | null;
+  airingAt: number;
+  media: {
+    id: number;
+    idMal: number | null;
+    isAdult: boolean;
+    title: { romaji: string | null; english: string | null };
+    coverImage: { large: string | null; extraLarge: string | null };
+    bannerImage: string | null;
+    countryOfOrigin: string | null;
+    format: string | null;
+  };
+}
+
+async function fetchSchedule(fromUnix: number, toUnix: number, perPage = 50): Promise<AniListSchedule[]> {
+  const res = await fetch(appConfig.ANILIST_GRAPHQL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      query: SCHEDULE_QUERY,
+      variables: { from: fromUnix, to: toUnix, perPage },
+    }),
+  });
+  if (!res.ok) throw new Error(`AniList ${res.status}`);
+  const json = await res.json();
+  const entries: ScheduleEntry[] = json?.data?.Page?.airingSchedules ?? [];
+  return entries
+    .filter((e) => !e.media.isAdult)
+    .map((e) => ({
+      mal_id: e.media.idMal ?? e.media.id,
+      anilist_id: e.media.id,
+      title: e.media.title.english || e.media.title.romaji || "Untitled",
+      episode: e.episode,
+      airingAt: e.airingAt,
+      poster: e.media.coverImage.extraLarge || e.media.coverImage.large,
+      banner: e.media.bannerImage,
+    }));
+}
+
+/** Today's airing schedule (00:00 → 24:00 local time). */
+export async function getAniListTodaysSchedule(): Promise<AniListSchedule[]> {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setHours(24, 0, 0, 0);
+  return fetchSchedule(Math.floor(start.getTime() / 1000), Math.floor(end.getTime() / 1000), 50);
+}
+
+/** Upcoming episodes for the next 7 days. */
+export async function getAniListWeekSchedule(): Promise<AniListSchedule[]> {
+  const now = Math.floor(Date.now() / 1000);
+  return fetchSchedule(now, now + 7 * 24 * 3600, 50);
+}
+
+/** Soonest single upcoming release (for the countdown sidebar). */
+export async function getAniListNextRelease(): Promise<AniListSchedule | null> {
+  const list = await getAniListWeekSchedule();
+  return list[0] ?? null;
+}
+
 export async function searchAniList(query: string, perPage = 8): Promise<TMDBMovie[]> {
   if (!query.trim()) return [];
   try {
