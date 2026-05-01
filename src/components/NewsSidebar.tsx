@@ -1,21 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Newspaper, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/lib/externalSupabase";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface NewsItem {
-  title: string;
-  link: string;
-  pubDate: string;
-  description: string;
-}
-
-async function fetchNews(): Promise<NewsItem[]> {
-  const { data, error } = await supabase.functions.invoke("ann-news");
-  if (error) throw error;
-  return (data?.items ?? []) as NewsItem[];
-}
+import { fetchAnimeNews, type NewsItem } from "@/lib/news";
 
 /** Tiny coloured square thumbnail derived from the title (no images in RSS). */
 function colorFromTitle(t: string): string {
@@ -26,9 +13,9 @@ function colorFromTitle(t: string): string {
 }
 
 export function NewsSidebar() {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<NewsItem[]>({
     queryKey: ["ann-rss-sidebar"],
-    queryFn: fetchNews,
+    queryFn: fetchAnimeNews,
   });
 
   return (
@@ -60,9 +47,7 @@ export function NewsSidebar() {
       )}
 
       {error && (
-        <p className="text-xs text-muted-foreground">
-          News feed unavailable.
-        </p>
+        <p className="text-xs text-muted-foreground">News feed unavailable.</p>
       )}
 
       <ul className="space-y-3">

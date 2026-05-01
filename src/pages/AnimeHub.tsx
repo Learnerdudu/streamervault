@@ -14,16 +14,19 @@ import {
   getMostPopular,
   getLatestCompleted,
   getTopTen,
-  getTodaysSchedule,
-  getNextBigRelease,
   jikanPosterUrl,
   type JikanAnime,
 } from "@/lib/jikan";
+import {
+  getAniListTodaysSchedule,
+  getAniListNextRelease,
+  type AniListSchedule,
+} from "@/lib/anilist";
 
 /**
  * Module 3 — HiAnime-style Anime Hub.
  *  ┌─ Spotlight Hero
- *  ├─ Estimated Schedule strip (today's airing)
+ *  ├─ Estimated Schedule strip (today's airing — AniList)
  *  └─ 2-column body: 75% dense grids · 25% Countdown + Top 10 + News
  */
 const AnimeHub = () => {
@@ -31,8 +34,8 @@ const AnimeHub = () => {
   const popular = useQuery({ queryKey: ["jikan", "most-popular"], queryFn: getMostPopular });
   const latest = useQuery({ queryKey: ["jikan", "latest-completed"], queryFn: getLatestCompleted });
   const top10 = useQuery({ queryKey: ["jikan", "top-10"], queryFn: getTopTen });
-  const today = useQuery({ queryKey: ["jikan", "today"], queryFn: getTodaysSchedule });
-  const next = useQuery({ queryKey: ["jikan", "next-big"], queryFn: getNextBigRelease });
+  const today = useQuery({ queryKey: ["anilist", "today"], queryFn: getAniListTodaysSchedule });
+  const next = useQuery({ queryKey: ["anilist", "next-release"], queryFn: getAniListNextRelease });
 
   // Spotlight rotator
   const spotlight = (top10.data ?? []).slice(0, 5);
@@ -157,20 +160,20 @@ function Grid({ title, loading, data }: GridProps) {
   );
 }
 
-function NextBigCountdown({ next, loading }: { next: JikanAnime | null; loading: boolean }) {
+function NextBigCountdown({ next, loading }: { next: AniListSchedule | null; loading: boolean }) {
   if (loading) {
     return (
       <div className="h-40 animate-pulse rounded-lg border border-border/40 bg-card/40" />
     );
   }
-  const title = next?.title_english || next?.title || "Next Big Release";
-  const target = next?.aired?.from ?? undefined;
+  const title = next?.title || "Next Big Release";
+  const target = next ? new Date(next.airingAt * 1000).toISOString() : undefined;
   return (
     <div className="overflow-hidden rounded-lg border border-primary/30 bg-card/40">
       <div className="border-b border-border/40 px-4 py-2">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Next Big Release</p>
         <p className="mt-1 truncate font-display text-lg tracking-wide text-foreground" title={title}>
-          {title}
+          {title}{next?.episode ? ` · EP ${next.episode}` : ""}
         </p>
       </div>
       <div className="px-2 pb-2">
