@@ -6,6 +6,7 @@ import { Star, Clock, Sparkles, Play } from "lucide-react";
 import { getImageUrl, getTrailerKey, type TMDBMovie } from "@/lib/tmdb";
 import { trackGenres } from "@/lib/genreAffinity";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { WatchLaterButton } from "@/components/WatchLaterButton";
 
 interface Props {
   item: TMDBMovie;
