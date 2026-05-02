@@ -138,6 +138,19 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
             </div>
           )}
 
+          {/* Watch Later — only on real TMDB items */}
+          {item.id < 1_000_000 && (
+            <div className="absolute left-2 top-2 z-20 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <WatchLaterButton
+                tmdbId={item.id}
+                mediaType={type}
+                title={title}
+                posterPath={item.poster_path}
+                compact
+              />
+            </div>
+          )}
+
           {/* Module 6: Neon red play icon — slides up on hover */}
           <div className="neon-play">
             <Play className="h-5 w-5 fill-current" />
