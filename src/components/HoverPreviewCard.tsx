@@ -6,6 +6,7 @@ import { Star, Clock, Sparkles, Play } from "lucide-react";
 import { getImageUrl, getTrailerKey, type TMDBMovie } from "@/lib/tmdb";
 import { trackGenres } from "@/lib/genreAffinity";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { WatchLaterButton } from "@/components/WatchLaterButton";
 
 interface Props {
   item: TMDBMovie;
@@ -134,6 +135,19 @@ export function HoverPreviewCard({ item, mediaType }: Props) {
             <div className="pointer-events-none absolute right-2 top-2 flex flex-col gap-1">
               <span className="hi-badge hi-badge--sub">SUB</span>
               <span className="hi-badge hi-badge--dub">DUB</span>
+            </div>
+          )}
+
+          {/* Watch Later — only on real TMDB items */}
+          {item.id < 1_000_000 && (
+            <div className="absolute left-2 top-2 z-20 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <WatchLaterButton
+                tmdbId={item.id}
+                mediaType={type}
+                title={title}
+                posterPath={item.poster_path}
+                compact
+              />
             </div>
           )}
 

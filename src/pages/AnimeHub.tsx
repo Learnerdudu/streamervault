@@ -3,38 +3,37 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { CompactAnimeCard } from "@/components/CompactAnimeCard";
+import { CompactAniListCard } from "@/components/CompactAniListCard";
 import { AiringScheduleStrip } from "@/components/AiringScheduleStrip";
 import { Top10Sidebar } from "@/components/Top10Sidebar";
 import { NewsSidebar } from "@/components/NewsSidebar";
 import { LiveCountdown } from "@/components/LiveCountdown";
 import { PosterRowSkeleton, HeroSkeleton } from "@/components/Skeletons";
 import {
-  getTopAiring,
-  getMostPopular,
-  getLatestCompleted,
-  getTopTen,
-  jikanPosterUrl,
-  type JikanAnime,
-} from "@/lib/jikan";
-import {
+  getAniListRecentlyUpdated,
+  getAniListNewReleases,
+  getAniListLatestCompleted,
+  getAniListTopTen,
   getAniListTodaysSchedule,
+  getAniListWeekSchedule,
   getAniListNextRelease,
+  type AniListListItem,
   type AniListSchedule,
 } from "@/lib/anilist";
 
 /**
  * Module 3 — HiAnime-style Anime Hub.
- *  ┌─ Spotlight Hero
+ *  ┌─ Spotlight Hero (AniList Top 10)
  *  ├─ Estimated Schedule strip (today's airing — AniList)
- *  └─ 2-column body: 75% dense grids · 25% Countdown + Top 10 + News
+ *  └─ 2-column body: 75% dense AniList grids · 25% Countdown + Top 10 + News
  */
 const AnimeHub = () => {
-  const topAiring = useQuery({ queryKey: ["jikan", "top-airing"], queryFn: getTopAiring });
-  const popular = useQuery({ queryKey: ["jikan", "most-popular"], queryFn: getMostPopular });
-  const latest = useQuery({ queryKey: ["jikan", "latest-completed"], queryFn: getLatestCompleted });
-  const top10 = useQuery({ queryKey: ["jikan", "top-10"], queryFn: getTopTen });
+  const recentlyUpdated = useQuery({ queryKey: ["anilist", "recently-updated"], queryFn: getAniListRecentlyUpdated });
+  const newReleases = useQuery({ queryKey: ["anilist", "new-releases"], queryFn: getAniListNewReleases });
+  const latest = useQuery({ queryKey: ["anilist", "latest-completed"], queryFn: getAniListLatestCompleted });
+  const top10 = useQuery({ queryKey: ["anilist", "top-10"], queryFn: getAniListTopTen });
   const today = useQuery({ queryKey: ["anilist", "today"], queryFn: getAniListTodaysSchedule });
+  const upcoming = useQuery({ queryKey: ["anilist", "week"], queryFn: getAniListWeekSchedule });
   const next = useQuery({ queryKey: ["anilist", "next-release"], queryFn: getAniListNextRelease });
 
   // Spotlight rotator
@@ -61,8 +60,8 @@ const AnimeHub = () => {
             <AnimatePresence mode="sync">
               {current && (
                 <motion.img
-                  key={current.mal_id}
-                  src={jikanPosterUrl(current) ?? undefined}
+                  key={current.id}
+                  src={current.banner ?? current.poster ?? undefined}
                   alt={current.title}
                   initial={{ opacity: 0, scale: 1.05 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -81,7 +80,7 @@ const AnimeHub = () => {
                   Top Trending Anime
                 </p>
                 <h1 className="font-display text-5xl tracking-wide text-foreground sm:text-6xl md:text-7xl">
-                  {current.title_english || current.title}
+                  {current.title}
                 </h1>
                 <p className="mt-3 line-clamp-3 max-w-xl text-sm text-foreground/80 sm:text-base">
                   {current.synopsis}
@@ -119,9 +118,10 @@ const AnimeHub = () => {
         <div className="grid gap-8 lg:grid-cols-[3fr_1fr]">
           {/* ─── LEFT 75% ── grids ──────────────────────────────────────── */}
           <div className="space-y-12">
-            <Grid title="Recently Updated" loading={topAiring.isLoading} data={topAiring.data ?? []} />
-            <Grid title="New Releases" loading={popular.isLoading} data={popular.data ?? []} />
+            <Grid title="Recently Updated" loading={recentlyUpdated.isLoading} data={recentlyUpdated.data ?? []} />
+            <Grid title="New Releases" loading={newReleases.isLoading} data={newReleases.data ?? []} />
             <Grid title="Latest Completed" loading={latest.isLoading} data={latest.data ?? []} />
+            <UpcomingList items={upcoming.data ?? []} loading={upcoming.isLoading} />
           </div>
 
           {/* ─── RIGHT 25% ── countdown + top10 + news ─────────────────── */}
@@ -140,7 +140,7 @@ const AnimeHub = () => {
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
-interface GridProps { title: string; loading: boolean; data: JikanAnime[] }
+interface GridProps { title: string; loading: boolean; data: AniListListItem[] }
 function Grid({ title, loading, data }: GridProps) {
   return (
     <section>
@@ -152,8 +152,50 @@ function Grid({ title, loading, data }: GridProps) {
       ) : (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
           {data.slice(0, 15).map((a, i) => (
-            <CompactAnimeCard key={a.mal_id} anime={a} delay={Math.min(i * 0.025, 0.3)} />
+            <CompactAniListCard key={a.id} anime={a} delay={Math.min(i * 0.025, 0.3)} />
           ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function UpcomingList({ items, loading }: { items: AniListSchedule[]; loading: boolean }) {
+  return (
+    <section>
+      <h2 className="mb-5 flex items-center gap-2 font-display text-2xl tracking-wide text-foreground sm:text-3xl">
+        <span className="inline-block h-4 w-1 bg-primary" /> Upcoming This Week
+      </h2>
+      {loading ? (
+        <PosterRowSkeleton />
+      ) : items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Nothing scheduled.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {items.slice(0, 12).map((a) => {
+            const dt = new Date(a.airingAt * 1000);
+            const day = dt.toLocaleDateString([], { weekday: "short" });
+            const time = dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            return (
+              <div
+                key={`${a.anilist_id}-${a.airingAt}`}
+                className="anime-glow-hover flex items-center gap-3 rounded-md border border-border/40 bg-card/50 p-2"
+              >
+                {a.poster && (
+                  <img src={a.poster} alt="" loading="lazy" className="h-14 w-10 flex-shrink-0 rounded object-cover" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-foreground" title={a.title}>{a.title}</p>
+                  <div className="mt-0.5 flex items-center gap-2 text-[11px]">
+                    <span className="font-mono font-bold text-primary">{day} · {time}</span>
+                    <span className="rounded-sm bg-primary/15 px-1.5 py-0.5 font-bold uppercase text-primary">
+                      EP {a.episode ?? "?"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </section>
