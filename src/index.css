@@ -128,7 +128,7 @@
   .rim-light {
     box-shadow: var(--rim-light);
   }
-  }
+}
 
   /* HiAnime pill — glassy category button with neon-red hover glow */
   .anime-pill {
@@ -207,18 +207,19 @@
   font-weight: 900;
   color: transparent;
   -webkit-text-stroke: 2.5px #ff0000;
-  text-stroke: 2.5px #ff0000;
   pointer-events: none;
   user-select: none;
 }
 
-/* Sidebar variant — smaller index for compact Top 10 list */
+/* Sidebar variant — MASSIVE transparent stroked numbers in Top 10 list */
 .hianime-index--sm {
-  font-size: clamp(40px, 4vw, 64px);
-  left: -2px;
+  font-size: clamp(54px, 5.5vw, 78px);
+  left: 4px;
   top: 50%;
   bottom: auto;
   transform: translateY(-50%);
+  -webkit-text-stroke: 2.5px #ff0000;
+  filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.45));
 }
 
 /* Module 5 — slide-up entrance for anime cards */
