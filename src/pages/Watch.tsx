@@ -141,10 +141,11 @@ const Watch = () => {
     };
 
     upsert(baseSecondsRef.current);
+    // 30-second heartbeat to persist progress to watch_history
     const interval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
       upsert(baseSecondsRef.current + elapsed);
-    }, 10_000);
+    }, 30_000);
 
     return () => clearInterval(interval);
   }, [user, tmdbId, isTV, title, posterPath, season, episode]);
