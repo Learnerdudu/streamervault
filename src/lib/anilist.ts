@@ -232,18 +232,38 @@ function toListItem(m: RawListMedia): AniListListItem {
   };
 }
 
-async function aniListPage(sort: string, status: string | null, perPage = 20): Promise<AniListListItem[]> {
+interface PageVars {
+  perPage: number;
+  sort: string[];
+  status?: string | null;
+  seasonYear?: number;
+}
+
+async function aniListPage(
+  vars: PageVars,
+  filters: { withStatus?: boolean; withSeasonYear?: boolean } = {},
+): Promise<AniListListItem[]> {
+  const params: string[] = ["$perPage: Int", "$sort: [MediaSort]"];
+  const args: string[] = ["type: ANIME", "isAdult: false", "sort: $sort"];
+  if (filters.withStatus) {
+    params.push("$status: MediaStatus");
+    args.push("status: $status");
+  }
+  if (filters.withSeasonYear) {
+    params.push("$seasonYear: Int");
+    args.push("seasonYear: $seasonYear");
+  }
   const query = `
-    query ($perPage: Int, $sort: [MediaSort], $status: MediaStatus) {
+    query (${params.join(", ")}) {
       Page(page: 1, perPage: $perPage) {
-        media(type: ANIME, isAdult: false, sort: $sort, status: $status) { ${LIST_FRAGMENT} }
+        media(${args.join(", ")}) { ${LIST_FRAGMENT} }
       }
     }
   `;
   const res = await fetch(appConfig.ANILIST_GRAPHQL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ query, variables: { perPage, sort: [sort], status } }),
+    body: JSON.stringify({ query, variables: vars }),
   });
   if (!res.ok) throw new Error(`AniList ${res.status}`);
   const json = await res.json();
@@ -251,11 +271,18 @@ async function aniListPage(sort: string, status: string | null, perPage = 20): P
   return list.filter((m) => !m.isAdult).map(toListItem);
 }
 
-/** Recently updated / currently airing — sorted by trending. */
-export const getAniListRecentlyUpdated = () => aniListPage("TRENDING_DESC", "RELEASING", 20);
-/** New releases — popularity within currently releasing slate. */
-export const getAniListNewReleases = () => aniListPage("POPULARITY_DESC", "RELEASING", 20);
+/** Recently updated — sorted by AniList's UPDATED_AT_DESC. */
+export const getAniListRecentlyUpdated = () =>
+  aniListPage({ perPage: 20, sort: ["UPDATED_AT_DESC"] });
+/** New releases — currently airing this season-year, newest start dates first. */
+export const getAniListNewReleases = () =>
+  aniListPage(
+    { perPage: 20, sort: ["START_DATE_DESC"], status: "RELEASING", seasonYear: new Date().getFullYear() },
+    { withStatus: true, withSeasonYear: true },
+  );
 /** Latest completed — most-recently finished anime, sorted by end date. */
-export const getAniListLatestCompleted = () => aniListPage("END_DATE_DESC", "FINISHED", 20);
+export const getAniListLatestCompleted = () =>
+  aniListPage({ perPage: 20, sort: ["END_DATE_DESC"], status: "FINISHED" }, { withStatus: true });
 /** Top 10 — highest scored across all anime. */
-export const getAniListTopTen = () => aniListPage("SCORE_DESC", null, 10);
+export const getAniListTopTen = () =>
+  aniListPage({ perPage: 10, sort: ["SCORE_DESC"] });
