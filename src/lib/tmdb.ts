@@ -1,8 +1,6 @@
-import { appConfig } from "@/config/appConfig";
 import { sanitize } from "@/utils/SecurityMiddleware";
+import { supabase } from "@/integrations/supabase/client";
 
-const TMDB_API_KEY = appConfig.TMDB_API_KEY;
-const BASE_URL = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p";
 
 export const getImageUrl = (path: string | null, size: string = "w500") =>
