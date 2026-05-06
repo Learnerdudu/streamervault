@@ -73,20 +73,37 @@ export function CollectionsSection() {
 
   async function createFolder(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!user || !newName.trim()) return;
-    setBusy(true);
-    const { error } = await supabase.from("collections").insert({
-      user_id: user.id,
-      name: newName.trim().slice(0, 60),
-    });
-    setBusy(false);
-    if (error) {
-      toast({ title: "Could not create", description: error.message, variant: "destructive" });
+    if (!user) {
+      toast({ title: "Not signed in", description: "Please sign in to create a vault.", variant: "destructive" });
       return;
     }
+    if (!newName.trim()) return;
+    setBusy(true);
+    const payload = {
+      user_id: user.id,
+      name: newName.trim().slice(0, 60),
+    };
+    console.log("[Collections] inserting folder", payload);
+    const { data, error } = await supabase
+      .from("collections")
+      .insert(payload)
+      .select()
+      .single();
+    setBusy(false);
+    if (error) {
+      console.error("[Collections] insert failed", error);
+      toast({
+        title: "Could not create vault",
+        description: `${error.message}${error.hint ? ` — ${error.hint}` : ""}`,
+        variant: "destructive",
+      });
+      return;
+    }
+    console.log("[Collections] inserted", data);
+    toast({ title: "Vault created", description: `"${data?.name ?? newName}" is ready.` });
     setNewName("");
     setCreateOpen(false);
-    loadFolders();
+    await loadFolders();
   }
 
   if (!user) return null;
