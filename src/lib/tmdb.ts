@@ -1,8 +1,6 @@
-import { appConfig } from "@/config/appConfig";
 import { sanitize } from "@/utils/SecurityMiddleware";
+import { supabase } from "@/integrations/supabase/client";
 
-const TMDB_API_KEY = appConfig.TMDB_API_KEY;
-const BASE_URL = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p";
 
 export const getImageUrl = (path: string | null, size: string = "w500") =>
@@ -49,16 +47,19 @@ export interface TMDBVideo {
 export const purify = sanitize;
 
 async function tmdbFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
-  const url = new URL(`${BASE_URL}${endpoint}`);
-  url.searchParams.set("api_key", TMDB_API_KEY);
   // Strict default: never request adult content. Callers can still override per-call.
-  if (!("include_adult" in params)) {
-    url.searchParams.set("include_adult", "false");
+  const finalParams: Record<string, string> = { ...params };
+  if (!("include_adult" in finalParams)) {
+    finalParams.include_adult = "false";
   }
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`TMDB error: ${res.status}`);
-  return res.json();
+  const { data, error } = await supabase.functions.invoke("tmdb-proxy", {
+    body: { endpoint, params: finalParams },
+  });
+  if (error) throw new Error(`TMDB proxy error: ${error.message}`);
+  if (data && typeof data === "object" && "error" in data && (data as { error?: unknown }).error) {
+    throw new Error(`TMDB error: ${String((data as { error: unknown }).error)}`);
+  }
+  return data as T;
 }
 
 export async function getTrending(type: "movie" | "tv" | "all" = "all") {

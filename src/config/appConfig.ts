@@ -1,5 +1,5 @@
 export const appConfig = {
-  TMDB_API_KEY: "31f176d96facfc29d1dd7af9109d4f34",
+  // TMDB_API_KEY removed — now stored as a Supabase secret and accessed via the tmdb-proxy edge function.
   PUSHER_KEY: "6f827724b69d76d79f13",
   PUSHER_CLUSTER: "eu",
   PUSHER_APP_ID: "2146381",
