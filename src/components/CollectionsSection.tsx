@@ -1,12 +1,34 @@
 import { useEffect, useState } from "react";
-import { FolderPlus, Sparkles } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FolderPlus, Sparkles, Pencil, Trash2, MoreVertical } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/externalSupabase";
 import { useAuth } from "@/hooks/useAuth";
 import { getImageUrl } from "@/lib/tmdb";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface CollectionWithPreview {
   id: string;
@@ -16,10 +38,8 @@ interface CollectionWithPreview {
   posters: (string | null)[];
 }
 
-/**
- * "My Collections" section — stacked-card folder previews.
- * Empty state shows a stylish "Build Your First Vault" prompt.
- */
+const EMOJI_CHOICES = ["📁", "⭐", "🔥", "💖", "🎬", "👻", "🌙", "🍿", "🎯", "🧠", "😭", "🚀"];
+
 export function CollectionsSection() {
   const { user } = useAuth();
   const [folders, setFolders] = useState<CollectionWithPreview[]>([]);
@@ -27,6 +47,12 @@ export function CollectionsSection() {
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // Edit / delete state
+  const [editTarget, setEditTarget] = useState<CollectionWithPreview | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmoji, setEditEmoji] = useState("📁");
+  const [deleteTarget, setDeleteTarget] = useState<CollectionWithPreview | null>(null);
 
   async function loadFolders() {
     if (!user) {
@@ -43,19 +69,14 @@ export function CollectionsSection() {
 
     if (colsErr) {
       console.error("[Collections] fetch failed:", colsErr.message, colsErr);
-      toast({ title: "Could not load vaults", description: colsErr.message, variant: "destructive" });
-      setFolders([]);
-      setLoading(false);
-      return;
-    }
-    if (!cols) {
+      toast.error("Could not load vaults", { description: colsErr.message });
       setFolders([]);
       setLoading(false);
       return;
     }
 
     const enriched = await Promise.all(
-      cols.map(async (c) => {
+      (cols ?? []).map(async (c) => {
         const { data: items, count, error: itemsErr } = await supabase
           .from("collection_items")
           .select("poster_path", { count: "exact" })
@@ -63,7 +84,7 @@ export function CollectionsSection() {
           .eq("collection_id", c.id)
           .order("added_at", { ascending: false })
           .limit(3);
-        if (itemsErr) console.error("[Collections] items fetch failed:", itemsErr.message, itemsErr);
+        if (itemsErr) console.error("[Collections] items fetch failed:", itemsErr.message);
         return {
           id: c.id,
           name: c.name,
@@ -84,35 +105,79 @@ export function CollectionsSection() {
   async function createFolder(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) {
-      toast({ title: "Not signed in", description: "Please sign in to create a vault.", variant: "destructive" });
+      toast.error("Not signed in", { description: "Please sign in to create a vault." });
       return;
     }
     if (!newName.trim()) return;
     setBusy(true);
-    const payload = {
-      user_id: user.id,
-      name: newName.trim().slice(0, 60),
-    };
-    console.log("[Collections] inserting folder", payload);
     const { data, error } = await supabase
       .from("collections")
-      .insert(payload)
+      .insert({ user_id: user.id, name: newName.trim().slice(0, 60) })
       .select()
       .single();
     setBusy(false);
     if (error) {
       console.error("[Collections] insert failed", error);
-      toast({
-        title: "Could not create vault",
-        description: `${error.message}${error.hint ? ` — ${error.hint}` : ""}`,
-        variant: "destructive",
-      });
+      toast.error("Could not create vault", { description: error.message });
       return;
     }
-    console.log("[Collections] inserted", data);
-    toast({ title: "Vault created", description: `"${data?.name ?? newName}" is ready.` });
+    toast.success("Vault created", { description: `"${data?.name ?? newName}" is ready.` });
     setNewName("");
     setCreateOpen(false);
+    await loadFolders();
+  }
+
+  function openEdit(folder: CollectionWithPreview) {
+    setEditTarget(folder);
+    setEditName(folder.name);
+    setEditEmoji(folder.emoji || "📁");
+  }
+
+  async function saveEdit() {
+    if (!user || !editTarget) return;
+    if (!editName.trim()) {
+      toast.error("Name required");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase
+      .from("collections")
+      .update({ name: editName.trim().slice(0, 60), emoji: editEmoji })
+      .eq("id", editTarget.id)
+      .eq("user_id", user.id);
+    setBusy(false);
+    if (error) {
+      console.error("[Collections] update failed", error);
+      toast.error("Could not update vault", { description: error.message });
+      return;
+    }
+    toast.success("Vault updated");
+    setEditTarget(null);
+    await loadFolders();
+  }
+
+  async function confirmDelete() {
+    if (!user || !deleteTarget) return;
+    setBusy(true);
+    // Remove items first (no FK cascade assumed)
+    await supabase
+      .from("collection_items")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("collection_id", deleteTarget.id);
+    const { error } = await supabase
+      .from("collections")
+      .delete()
+      .eq("id", deleteTarget.id)
+      .eq("user_id", user.id);
+    setBusy(false);
+    if (error) {
+      console.error("[Collections] delete failed", error);
+      toast.error("Could not delete vault", { description: error.message });
+      return;
+    }
+    toast.success(`Deleted "${deleteTarget.name}"`);
+    setDeleteTarget(null);
     await loadFolders();
   }
 
@@ -140,11 +205,17 @@ export function CollectionsSection() {
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {folders.map((f) => (
-            <FolderCard key={f.id} folder={f} />
+            <FolderCard
+              key={f.id}
+              folder={f}
+              onEdit={() => openEdit(f)}
+              onDelete={() => setDeleteTarget(f)}
+            />
           ))}
         </div>
       )}
 
+      {/* Create */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
@@ -164,18 +235,127 @@ export function CollectionsSection() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Edit */}
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Edit vault</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Name
+              </label>
+              <Input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                maxLength={60}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Icon
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {EMOJI_CHOICES.map((em) => (
+                  <button
+                    key={em}
+                    type="button"
+                    onClick={() => setEditEmoji(em)}
+                    className={`flex h-9 w-9 items-center justify-center rounded-md border text-lg transition-all ${
+                      editEmoji === em
+                        ? "border-primary bg-primary/15 scale-110"
+                        : "border-white/10 bg-muted/30 hover:border-primary/40"
+                    }`}
+                  >
+                    {em}
+                  </button>
+                ))}
+                <Input
+                  value={editEmoji}
+                  onChange={(e) => setEditEmoji(e.target.value.slice(0, 4))}
+                  className="h-9 w-16 text-center text-lg"
+                  placeholder="🎉"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditTarget(null)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button onClick={saveEdit} disabled={busy || !editName.trim()}>
+              {busy ? "Saving…" : "Save changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirm */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this vault?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove "{deleteTarget?.name}" and all{" "}
+              {deleteTarget?.count ?? 0} saved titles inside it. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={busy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {busy ? "Deleting…" : "Delete vault"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }
 
-function FolderCard({ folder }: { folder: CollectionWithPreview }) {
+function FolderCard({
+  folder,
+  onEdit,
+  onDelete,
+}: {
+  folder: CollectionWithPreview;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const posters = folder.posters.slice(0, 3);
   while (posters.length < 3) posters.push(null);
 
   return (
-    <div className="group relative cursor-pointer">
-      {/* Stacked posters */}
-      <div className="relative aspect-[3/4]">
+    <div className="group relative">
+      {/* Action menu */}
+      <div className="absolute right-1 top-1 z-20 opacity-0 transition-opacity group-hover:opacity-100">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 text-foreground backdrop-blur-md hover:bg-primary hover:text-primary-foreground"
+              aria-label="Vault options"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onEdit}>
+              <Pencil className="mr-2 h-4 w-4" /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+              <Trash2 className="mr-2 h-4 w-4" /> Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="relative aspect-[3/4] cursor-pointer">
         {posters.map((p, i) => {
           const url = p ? getImageUrl(p, "w342") : null;
           const offset = i * 6;
@@ -199,7 +379,6 @@ function FolderCard({ folder }: { folder: CollectionWithPreview }) {
         })}
       </div>
 
-      {/* Label */}
       <div className="mt-3 flex items-center gap-2">
         <span className="text-base">{folder.emoji || "📁"}</span>
         <div className="min-w-0 flex-1">
