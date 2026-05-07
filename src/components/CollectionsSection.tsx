@@ -35,11 +35,19 @@ export function CollectionsSection() {
       return;
     }
     setLoading(true);
-    const { data: cols } = await supabase
+    const { data: cols, error: colsErr } = await supabase
       .from("collections")
-      .select("id, name, emoji")
+      .select("id, user_id, name, emoji, created_at")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
+    if (colsErr) {
+      console.error("[Collections] fetch failed:", colsErr.message, colsErr);
+      toast({ title: "Could not load vaults", description: colsErr.message, variant: "destructive" });
+      setFolders([]);
+      setLoading(false);
+      return;
+    }
     if (!cols) {
       setFolders([]);
       setLoading(false);
@@ -48,12 +56,14 @@ export function CollectionsSection() {
 
     const enriched = await Promise.all(
       cols.map(async (c) => {
-        const { data: items, count } = await supabase
+        const { data: items, count, error: itemsErr } = await supabase
           .from("collection_items")
           .select("poster_path", { count: "exact" })
+          .eq("user_id", user.id)
           .eq("collection_id", c.id)
           .order("added_at", { ascending: false })
           .limit(3);
+        if (itemsErr) console.error("[Collections] items fetch failed:", itemsErr.message, itemsErr);
         return {
           id: c.id,
           name: c.name,

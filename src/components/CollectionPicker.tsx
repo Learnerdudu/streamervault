@@ -34,9 +34,11 @@ export function CollectionPicker({ item, mediaType, open, onOpenChange, onSaved 
     setLoading(true);
     supabase
       .from("collections")
-      .select("id, name, emoji")
+      .select("id, user_id, name, emoji, created_at")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error("[Collections] fetch failed:", error.message, error);
         setCollections(data ?? []);
         setLoading(false);
       });

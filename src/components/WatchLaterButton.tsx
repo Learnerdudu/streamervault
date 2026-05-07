@@ -32,12 +32,13 @@ export function WatchLaterButton({ tmdbId, mediaType, title, posterPath, classNa
     let cancelled = false;
     supabase
       .from("watch_later")
-      .select("id")
+      .select("id, user_id, tmdb_id, media_type, title, poster_path")
       .eq("user_id", user.id)
       .eq("tmdb_id", tmdbId)
       .eq("media_type", mediaType)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error("[WatchLater] fetch failed:", error.message, error);
         if (!cancelled) setSaved(!!data);
       });
     return () => {
