@@ -7,6 +7,7 @@ import { MovieCarousel } from "@/components/MovieCarousel";
 import { AdBanner } from "@/components/AdBanner";
 import { ContinueWatching } from "@/components/ContinueWatching";
 import { CollectionsSection } from "@/components/CollectionsSection";
+import { WatchLaterRow } from "@/components/WatchLaterRow";
 
 import {
   getTrending,
