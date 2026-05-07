@@ -63,6 +63,7 @@ export function CollectionsSection() {
           .eq("collection_id", c.id)
           .order("added_at", { ascending: false })
           .limit(3);
+        if (itemsErr) console.error("[Collections] items fetch failed:", itemsErr.message, itemsErr);
         return {
           id: c.id,
           name: c.name,
