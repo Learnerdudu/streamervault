@@ -7,6 +7,7 @@ import { MovieCarousel } from "@/components/MovieCarousel";
 import { AdBanner } from "@/components/AdBanner";
 import { ContinueWatching } from "@/components/ContinueWatching";
 import { CollectionsSection } from "@/components/CollectionsSection";
+import { WatchLaterRow } from "@/components/WatchLaterRow";
 
 import {
   getTrending,
@@ -87,6 +88,7 @@ const Index = () => {
           <AdBanner />
 
           <ContinueWatching />
+          <WatchLaterRow />
           <CollectionsSection />
           {picked.length > 0 && (
             <MovieCarousel title={t("rows.pickedForYou")} items={picked} mediaType="movie" />

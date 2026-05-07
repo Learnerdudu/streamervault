@@ -116,12 +116,17 @@ const Watch = () => {
     baseSecondsRef.current = 0;
   }, [season, episode]);
 
-  // Module 5: 10-second progress save
+  // Module 5: 30-second heartbeat — only writes monotonically increasing progress.
+  // Skips initial zero write so we don't clobber a real saved offset with 0.
   useEffect(() => {
     if (!user || !tmdbId || !title) return;
+    const lastSavedRef = { current: baseSecondsRef.current };
 
-    const upsert = (progressSeconds: number) => {
-      supabase
+    const upsert = async (progressSeconds: number) => {
+      // Sanity: must be >= last persisted (don't skip backward) and reasonable (< 12h)
+      if (progressSeconds <= lastSavedRef.current) return;
+      if (progressSeconds > 12 * 60 * 60) return;
+      const { error } = await supabase
         .from("watch_history")
         .upsert(
           {
@@ -136,12 +141,14 @@ const Watch = () => {
             watched_at: new Date().toISOString(),
           },
           { onConflict: "user_id,tmdb_id,media_type" },
-        )
-        .then(() => {});
+        );
+      if (error) {
+        console.error("[Heartbeat] upsert failed:", error.message);
+        return;
+      }
+      lastSavedRef.current = progressSeconds;
     };
 
-    upsert(baseSecondsRef.current);
-    // 30-second heartbeat to persist progress to watch_history
     const interval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
       upsert(baseSecondsRef.current + elapsed);
