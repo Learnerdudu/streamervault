@@ -88,6 +88,7 @@ const Index = () => {
           <AdBanner />
 
           <ContinueWatching />
+          <WatchLaterRow />
           <CollectionsSection />
           {picked.length > 0 && (
             <MovieCarousel title={t("rows.pickedForYou")} items={picked} mediaType="movie" />
