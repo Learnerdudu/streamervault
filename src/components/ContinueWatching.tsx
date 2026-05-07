@@ -42,7 +42,11 @@ export function ContinueWatching() {
       .eq("user_id", user.id)
       .order("watched_at", { ascending: false })
       .limit(12)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("[WatchHistory] fetch failed:", error.message, error);
+          return;
+        }
         if (!data) return;
         setItems(
           (data as Row[]).map((r) => ({
