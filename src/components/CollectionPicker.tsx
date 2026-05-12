@@ -55,6 +55,7 @@ export function CollectionPicker({ item, mediaType, open, onOpenChange, onSaved 
       poster_path: item.poster_path,
     });
     if (error && !error.message.includes("duplicate")) {
+      console.error("DB_SYNC_ERROR:", error.message, error);
       toast({ title: "Could not save", description: error.message, variant: "destructive" });
       return;
     }
