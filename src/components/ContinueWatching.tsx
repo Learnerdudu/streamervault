@@ -44,7 +44,7 @@ export function ContinueWatching() {
       .limit(12)
       .then(({ data, error }) => {
         if (error) {
-          console.error("[WatchHistory] fetch failed:", error.message, error);
+          console.error("DB_SYNC_ERROR:", error.message, error);
           return;
         }
         if (!data) return;

@@ -38,7 +38,7 @@ export function WatchLaterButton({ tmdbId, mediaType, title, posterPath, classNa
       .eq("media_type", mediaType)
       .maybeSingle()
       .then(({ data, error }) => {
-        if (error) console.error("[WatchLater] fetch failed:", error.message, error);
+        if (error) console.error("DB_SYNC_ERROR:", error.message, error);
         if (!cancelled) setSaved(!!data);
       });
     return () => {
@@ -65,6 +65,7 @@ export function WatchLaterButton({ tmdbId, mediaType, title, posterPath, classNa
         setSaved(false);
         toast("Removed from Watch Later");
       } else {
+        console.error("DB_SYNC_ERROR:", error.message, error);
         toast.error("Couldn't remove — try again");
       }
     } else {
@@ -84,6 +85,7 @@ export function WatchLaterButton({ tmdbId, mediaType, title, posterPath, classNa
         setSaved(true);
         toast.success("Saved to Watch Later");
       } else {
+        console.error("DB_SYNC_ERROR:", error.message, error);
         toast.error("Couldn't save — try again");
       }
     }

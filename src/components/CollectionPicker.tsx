@@ -38,7 +38,7 @@ export function CollectionPicker({ item, mediaType, open, onOpenChange, onSaved 
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
-        if (error) console.error("[Collections] fetch failed:", error.message, error);
+        if (error) console.error("DB_SYNC_ERROR:", error.message, error);
         setCollections(data ?? []);
         setLoading(false);
       });
@@ -55,6 +55,7 @@ export function CollectionPicker({ item, mediaType, open, onOpenChange, onSaved 
       poster_path: item.poster_path,
     });
     if (error && !error.message.includes("duplicate")) {
+      console.error("DB_SYNC_ERROR:", error.message, error);
       toast({ title: "Could not save", description: error.message, variant: "destructive" });
       return;
     }
@@ -74,6 +75,7 @@ export function CollectionPicker({ item, mediaType, open, onOpenChange, onSaved 
       .single();
     setCreating(false);
     if (error || !data) {
+      console.error("DB_SYNC_ERROR:", error?.message, error);
       toast({ title: "Could not create folder", variant: "destructive" });
       return;
     }
