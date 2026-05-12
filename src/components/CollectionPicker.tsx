@@ -75,6 +75,7 @@ export function CollectionPicker({ item, mediaType, open, onOpenChange, onSaved 
       .single();
     setCreating(false);
     if (error || !data) {
+      console.error("DB_SYNC_ERROR:", error?.message, error);
       toast({ title: "Could not create folder", variant: "destructive" });
       return;
     }
