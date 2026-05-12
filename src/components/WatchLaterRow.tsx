@@ -31,7 +31,7 @@ export function WatchLaterRow() {
       .limit(12)
       .then(({ data, error }) => {
         if (error) {
-          console.error("[WatchLater] row fetch failed:", error.message);
+          console.error("DB_SYNC_ERROR:", error.message, error);
           return;
         }
         setItems((data ?? []) as Row[]);
