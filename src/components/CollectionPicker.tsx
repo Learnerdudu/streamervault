@@ -38,7 +38,7 @@ export function CollectionPicker({ item, mediaType, open, onOpenChange, onSaved 
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
-        if (error) console.error("[Collections] fetch failed:", error.message, error);
+        if (error) console.error("DB_SYNC_ERROR:", error.message, error);
         setCollections(data ?? []);
         setLoading(false);
       });
