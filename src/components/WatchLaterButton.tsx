@@ -38,7 +38,7 @@ export function WatchLaterButton({ tmdbId, mediaType, title, posterPath, classNa
       .eq("media_type", mediaType)
       .maybeSingle()
       .then(({ data, error }) => {
-        if (error) console.error("[WatchLater] fetch failed:", error.message, error);
+        if (error) console.error("DB_SYNC_ERROR:", error.message, error);
         if (!cancelled) setSaved(!!data);
       });
     return () => {
