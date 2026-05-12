@@ -65,6 +65,7 @@ export function WatchLaterButton({ tmdbId, mediaType, title, posterPath, classNa
         setSaved(false);
         toast("Removed from Watch Later");
       } else {
+        console.error("DB_SYNC_ERROR:", error.message, error);
         toast.error("Couldn't remove — try again");
       }
     } else {
